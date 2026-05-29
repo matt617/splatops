@@ -23,8 +23,12 @@ local MAX_HITS = Config.Player.MaxHits
 -- per-player fire cadence, enforced on the server so a fast client cannot out-shoot the marker
 local lastFireByPlayer: { [Player]: number } = {}
 
--- how far the reported muzzle origin may sit from the shooter before we reject it as spoofed
-local ORIGIN_TOLERANCE_STUDS = 12
+-- The client sends its camera position as the muzzle origin. In third person the
+-- camera sits well behind the character, so we trust that origin for aim only when it
+-- is within this range of the shooter. A farther (or spoofed) origin falls back to
+-- firing from the character, which still works and cannot shoot through walls from
+-- somewhere else.
+local ORIGIN_TOLERANCE_STUDS = 24
 
 local function teamPaintColor(player: Player?): Color3
 	if player and player.Team then
@@ -126,6 +130,7 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 	if Tower.isMatchOver() then
 		return
 	end
+	local rayOrigin = origin
 	if shooterPlayer then
 		local now = os.clock()
 		local last = lastFireByPlayer[shooterPlayer] or 0
@@ -134,11 +139,11 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 		end
 		lastFireByPlayer[shooterPlayer] = now
 
-		-- reject a muzzle origin that is nowhere near the shooter
+		-- trust the camera origin only when it sits near the shooter, else fire from them
 		local character = shooterPlayer.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart")
 		if root and root:IsA("BasePart") and (root.Position - origin).Magnitude > ORIGIN_TOLERANCE_STUDS then
-			return
+			rayOrigin = root.Position
 		end
 	end
 
@@ -148,24 +153,29 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 		params.FilterDescendantsInstances = { shooterPlayer.Character }
 	end
 
-	local result = Workspace:Raycast(origin, direction.Unit * MARKER.MaxRangeStuds, params)
+	local result = Workspace:Raycast(rayOrigin, direction.Unit * MARKER.MaxRangeStuds, params)
 	if not result then
 		return
 	end
 
+	local paintColor = teamPaintColor(shooterPlayer)
+
 	-- a comms tower hit damages the objective, not a player
 	local towerPart = Tower.resolveTowerPart(result.Instance)
 	if towerPart then
-		Tower.applyDamage(towerPart, result.Position, result.Normal, teamPaintColor(shooterPlayer), shooterPlayer)
+		Tower.applyDamage(towerPart, result.Position, result.Normal, paintColor, shooterPlayer)
 		return
 	end
 
+	-- a player hit
 	local hitModel = result.Instance:FindFirstAncestorOfClass("Model")
-	if not hitModel or not hitModel:FindFirstChildOfClass("Humanoid") then
+	if hitModel and hitModel:FindFirstChildOfClass("Humanoid") then
+		Combat.applyHit(hitModel, result.Position, result.Normal, paintColor, shooterPlayer)
 		return
 	end
 
-	Combat.applyHit(hitModel, result.Position, result.Normal, teamPaintColor(shooterPlayer), shooterPlayer)
+	-- otherwise paint the surface so every shot reads as a hit
+	PaintSplat.spawn(result.Position, result.Normal, paintColor)
 end
 
 return Combat
