@@ -1,6 +1,7 @@
 --!strict
 -- Assault Marker, client side. Reads aim and trigger, asks the server to fire.
--- The server owns hit detection and damage. We only report where the camera is pointing.
+-- The server owns hit detection and damage. We only report where the player is aiming:
+-- a ray from the camera through the mouse cursor, so you shoot what you point at.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11,6 +12,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 
 local MARKER = Config.Weapons.AssaultMarker
 local tool = script.Parent :: Tool
+local mouse = Players.LocalPlayer:GetMouse()
 
 tool.ToolTip = MARKER.DisplayName
 
@@ -28,5 +30,7 @@ tool.Activated:Connect(function()
 	if not camera then
 		return
 	end
-	Remotes.FireWeapon:FireServer(camera.CFrame.Position, camera.CFrame.LookVector)
+	-- aim at wherever the cursor points, not the center of the screen
+	local ray = camera:ScreenPointToRay(mouse.X, mouse.Y)
+	Remotes.FireWeapon:FireServer(ray.Origin, ray.Direction)
 end)
