@@ -1,0 +1,57 @@
+{
+  "name": "TextChatService",
+  "className": "TextChatService",
+  "childCount": 4,
+  "children": [
+    {
+      "name": "ChatWindowConfiguration",
+      "className": "ChatWindowConfiguration",
+      "childCount": 0,
+      "children": []
+    },
+    {
+      "name": "ChatInputBarConfiguration",
+      "className": "ChatInputBarConfiguration",
+      "childCount": 0,
+      "children": []
+    },
+    {
+      "name": "BubbleChatConfiguration",
+      "className": "BubbleChatConfiguration",
+      "childCount": 4,
+      "children": [
+        {
+          "name": "UIGradient",
+          "className": "UIGradient",
+          "childCount": 0,
+          "children": []
+        },
+        {
+          "name": "ImageLabel",
+          "className": "ImageLabel",
+          "childCount": 0,
+          "children": []
+        },
+        {
+          "name": "UICorner",
+          "className": "UICorner",
+          "childCount": 0,
+          "children": []
+        },
+        {
+          "name": "UIPadding",
+          "className": "UIPadding",
+          "childCount": 0,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "ChannelTabsConfiguration",
+      "className": "ChannelTabsConfiguration",
+      "childCount": 0,
+      "children": []
+    }
+  ],
+  "syncedAt": "2026-05-29T20:52:15.625Z"
+}

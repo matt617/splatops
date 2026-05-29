@@ -1,0 +1,22 @@
+{
+  "name": "UIPadding",
+  "className": "UIPadding",
+  "properties": {
+    "PaddingBottom": {
+      "scale": 0,
+      "offset": 8
+    },
+    "PaddingTop": {
+      "scale": 0,
+      "offset": 8
+    },
+    "PaddingLeft": {
+      "scale": 0,
+      "offset": 8
+    },
+    "PaddingRight": {
+      "scale": 0,
+      "offset": 8
+    }
+  }
+}

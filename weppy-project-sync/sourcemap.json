@@ -1,0 +1,148 @@
+{
+  "name": "DataModel",
+  "className": "DataModel",
+  "children": [
+    {
+      "name": "Lighting",
+      "className": "Lighting",
+      "children": [
+        {
+          "name": "Sky",
+          "className": "Sky"
+        },
+        {
+          "name": "SunRays",
+          "className": "SunRaysEffect"
+        },
+        {
+          "name": "Atmosphere",
+          "className": "Atmosphere"
+        },
+        {
+          "name": "Bloom",
+          "className": "BloomEffect"
+        },
+        {
+          "name": "DepthOfField",
+          "className": "DepthOfFieldEffect"
+        }
+      ]
+    },
+    {
+      "name": "ReplicatedFirst",
+      "className": "ReplicatedFirst"
+    },
+    {
+      "name": "ReplicatedStorage",
+      "className": "ReplicatedStorage"
+    },
+    {
+      "name": "ServerScriptService",
+      "className": "ServerScriptService"
+    },
+    {
+      "name": "ServerStorage",
+      "className": "ServerStorage"
+    },
+    {
+      "name": "SoundService",
+      "className": "SoundService"
+    },
+    {
+      "name": "StarterGui",
+      "className": "StarterGui"
+    },
+    {
+      "name": "StarterPack",
+      "className": "StarterPack"
+    },
+    {
+      "name": "StarterPlayer",
+      "className": "StarterPlayer",
+      "children": [
+        {
+          "name": "StarterPlayerScripts",
+          "className": "StarterPlayerScripts"
+        },
+        {
+          "name": "StarterCharacterScripts",
+          "className": "StarterCharacterScripts"
+        }
+      ]
+    },
+    {
+      "name": "TextChatService",
+      "className": "TextChatService",
+      "children": [
+        {
+          "name": "ChatWindowConfiguration",
+          "className": "ChatWindowConfiguration"
+        },
+        {
+          "name": "ChatInputBarConfiguration",
+          "className": "ChatInputBarConfiguration"
+        },
+        {
+          "name": "BubbleChatConfiguration",
+          "className": "BubbleChatConfiguration",
+          "children": [
+            {
+              "name": "UIGradient",
+              "className": "UIGradient"
+            },
+            {
+              "name": "ImageLabel",
+              "className": "ImageLabel"
+            },
+            {
+              "name": "UICorner",
+              "className": "UICorner"
+            },
+            {
+              "name": "UIPadding",
+              "className": "UIPadding"
+            }
+          ]
+        },
+        {
+          "name": "ChannelTabsConfiguration",
+          "className": "ChannelTabsConfiguration"
+        }
+      ]
+    },
+    {
+      "name": "Workspace",
+      "className": "Workspace",
+      "children": [
+        {
+          "name": "Camera",
+          "className": "Camera"
+        },
+        {
+          "name": "Baseplate",
+          "className": "Part",
+          "children": [
+            {
+              "name": "Texture",
+              "className": "Texture"
+            }
+          ]
+        },
+        {
+          "name": "Terrain",
+          "className": "Terrain"
+        },
+        {
+          "name": "SpawnLocation",
+          "className": "SpawnLocation",
+          "children": [
+            {
+              "name": "Decal",
+              "className": "Decal"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

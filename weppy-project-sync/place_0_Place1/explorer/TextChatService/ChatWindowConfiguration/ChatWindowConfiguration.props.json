@@ -1,0 +1,34 @@
+{
+  "name": "ChatWindowConfiguration",
+  "className": "ChatWindowConfiguration",
+  "properties": {
+    "Enabled": true,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/BuilderSans.json",
+      "style": "Enum.FontStyle.Normal",
+      "weight": "Enum.FontWeight.Medium"
+    },
+    "HorizontalAlignment": "Enum.HorizontalAlignment.Left",
+    "TextColor3": {
+      "b": 255,
+      "g": 255,
+      "r": 255
+    },
+    "TextStrokeColor3": {
+      "b": 0,
+      "g": 0,
+      "r": 0
+    },
+    "WidthScale": 1,
+    "TextStrokeTransparency": 0.5,
+    "VerticalAlignment": "Enum.VerticalAlignment.Top",
+    "BackgroundTransparency": 0.3,
+    "HeightScale": 1,
+    "TextSize": 18,
+    "BackgroundColor3": {
+      "b": 29,
+      "g": 27,
+      "r": 25
+    }
+  }
+}

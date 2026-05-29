@@ -1,0 +1,40 @@
+{
+  "name": "ChannelTabsConfiguration",
+  "className": "ChannelTabsConfiguration",
+  "properties": {
+    "Enabled": false,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/BuilderSans.json",
+      "style": "Enum.FontStyle.Normal",
+      "weight": "Enum.FontWeight.Bold"
+    },
+    "TextColor3": {
+      "b": 175,
+      "g": 175,
+      "r": 175
+    },
+    "TextStrokeColor3": {
+      "b": 0,
+      "g": 0,
+      "r": 0
+    },
+    "TextStrokeTransparency": 1,
+    "BackgroundTransparency": 0,
+    "HoverBackgroundColor3": {
+      "b": 125,
+      "g": 125,
+      "r": 125
+    },
+    "SelectedTabTextColor3": {
+      "b": 255,
+      "g": 255,
+      "r": 255
+    },
+    "TextSize": 18,
+    "BackgroundColor3": {
+      "b": 29,
+      "g": 27,
+      "r": 25
+    }
+  }
+}

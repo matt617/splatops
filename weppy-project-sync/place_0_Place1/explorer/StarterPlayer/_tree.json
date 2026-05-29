@@ -1,0 +1,20 @@
+{
+  "name": "StarterPlayer",
+  "className": "StarterPlayer",
+  "childCount": 2,
+  "children": [
+    {
+      "name": "StarterPlayerScripts",
+      "className": "StarterPlayerScripts",
+      "childCount": 0,
+      "children": []
+    },
+    {
+      "name": "StarterCharacterScripts",
+      "className": "StarterCharacterScripts",
+      "childCount": 0,
+      "children": []
+    }
+  ],
+  "syncedAt": "2026-05-29T20:52:14.781Z"
+}

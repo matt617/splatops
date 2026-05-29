@@ -1,0 +1,10 @@
+{
+  "name": "UICorner",
+  "className": "UICorner",
+  "properties": {
+    "CornerRadius": {
+      "scale": 0,
+      "offset": 12
+    }
+  }
+}

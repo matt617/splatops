@@ -1,0 +1,37 @@
+{
+  "name": "ChatInputBarConfiguration",
+  "className": "ChatInputBarConfiguration",
+  "properties": {
+    "AutocompleteEnabled": true,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/BuilderSans.json",
+      "style": "Enum.FontStyle.Normal",
+      "weight": "Enum.FontWeight.Medium"
+    },
+    "TextColor3": {
+      "b": 255,
+      "g": 255,
+      "r": 255
+    },
+    "TextStrokeColor3": {
+      "b": 0,
+      "g": 0,
+      "r": 0
+    },
+    "TextStrokeTransparency": 0.5,
+    "KeyboardKeyCode": "Enum.KeyCode.Slash",
+    "BackgroundTransparency": 0.2,
+    "PlaceholderColor3": {
+      "b": 178,
+      "g": 178,
+      "r": 178
+    },
+    "Enabled": true,
+    "TextSize": 18,
+    "BackgroundColor3": {
+      "b": 29,
+      "g": 27,
+      "r": 25
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Decal",
+  "className": "Decal",
+  "properties": {
+    "Face": "Enum.NormalId.Top",
+    "Texture": "rbxasset://textures/SpawnLocation.png"
+  }
+}
