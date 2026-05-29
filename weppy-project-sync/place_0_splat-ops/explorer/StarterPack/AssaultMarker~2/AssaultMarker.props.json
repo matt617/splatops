@@ -1,7 +1,0 @@
-{
-  "name": "AssaultMarker",
-  "className": "Tool",
-  "properties": {
-    "CanBeDropped": false
-  }
-}
