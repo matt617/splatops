@@ -1,7 +1,8 @@
 --!strict
--- Assault Marker, client side. Reads aim and trigger, asks the server to fire.
--- The server owns hit detection and damage. We only report where the player is aiming:
--- a ray from the camera through the mouse cursor, so you shoot what you point at.
+-- Assault Marker, client side. Fires where you click or tap. The cursor stays visible,
+-- and on a touch screen (iPad) tapping the screen activates the tool, so the same code
+-- works for mouse and touch. The server owns the paintball and all hit detection; we
+-- only report the ray the player aimed through.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -30,7 +31,7 @@ tool.Activated:Connect(function()
 	if not camera then
 		return
 	end
-	-- aim at wherever the cursor points, not the center of the screen
+	-- aim through the cursor on PC, or the tapped point on a touch screen
 	local ray = camera:ScreenPointToRay(mouse.X, mouse.Y)
 	Remotes.FireWeapon:FireServer(ray.Origin, ray.Direction)
 end)

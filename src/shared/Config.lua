@@ -66,6 +66,11 @@ Config.Weapons = {
 		AmmoPerMag = 25,
 		ReloadSeconds = 1.5,
 		PaintColor = "TEAM", -- uses team color
+		-- projectile feel: a paintball that flies and splats, not an instant laser
+		ProjectileSpeed = 110, -- studs per second
+		ProjectileGravity = 90, -- studs/s^2 downward; gives the paintball a visible arc
+		ProjectileSize = 0.8, -- ball diameter in studs
+		SpreadDegrees = 0, -- 0 = the ball lands where you tap (kid friendly); raise to scatter
 	},
 	ReconMarker = {
 		DisplayName = "Recon Marker",
