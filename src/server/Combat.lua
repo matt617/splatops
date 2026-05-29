@@ -7,11 +7,13 @@
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local PaintSplat = require(Shared:WaitForChild("PaintSplat"))
+local Tower = require(ServerScriptService:WaitForChild("Tower"))
 
 local Combat = {}
 
@@ -121,6 +123,9 @@ end
 
 -- Entry point for a fired shot. shooterPlayer is nil when the test harness drives this.
 function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: Vector3)
+	if Tower.isMatchOver() then
+		return
+	end
 	if shooterPlayer then
 		local now = os.clock()
 		local last = lastFireByPlayer[shooterPlayer] or 0
@@ -145,6 +150,13 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 
 	local result = Workspace:Raycast(origin, direction.Unit * MARKER.MaxRangeStuds, params)
 	if not result then
+		return
+	end
+
+	-- a comms tower hit damages the objective, not a player
+	local towerPart = Tower.resolveTowerPart(result.Instance)
+	if towerPart then
+		Tower.applyDamage(towerPart, result.Position, result.Normal, teamPaintColor(shooterPlayer), shooterPlayer)
 		return
 	end
 
