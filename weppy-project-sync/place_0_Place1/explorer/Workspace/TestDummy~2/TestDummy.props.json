@@ -1,0 +1,7 @@
+{
+  "name": "TestDummy",
+  "className": "Model",
+  "properties": {
+    "PrimaryPart": "Workspace.TestDummy.HumanoidRootPart"
+  }
+}

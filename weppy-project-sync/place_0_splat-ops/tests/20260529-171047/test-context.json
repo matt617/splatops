@@ -1,0 +1,9 @@
+{
+  "contextSummary": {
+    "testScenario": "AssaultMarker 3-hit tag-out"
+  },
+  "replayMetadata": {
+    "mode": "play",
+    "timeout": 30
+  }
+}

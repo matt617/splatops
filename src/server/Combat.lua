@@ -1,0 +1,159 @@
+--!strict
+-- Server-authoritative combat core for the Assault Marker.
+-- This module owns hit detection, damage, tag-out, and respawn. Nothing here trusts
+-- the client beyond where it claims to be aiming, and even that gets sanity checked.
+-- Kept as a module so the test harness can drive it directly with execute_luau.
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local Remotes = require(Shared:WaitForChild("Remotes"))
+local PaintSplat = require(Shared:WaitForChild("PaintSplat"))
+
+local Combat = {}
+
+local MARKER = Config.Weapons.AssaultMarker
+local MAX_HITS = Config.Player.MaxHits
+
+-- per-player fire cadence, enforced on the server so a fast client cannot out-shoot the marker
+local lastFireByPlayer: { [Player]: number } = {}
+
+-- how far the reported muzzle origin may sit from the shooter before we reject it as spoofed
+local ORIGIN_TOLERANCE_STUDS = 12
+
+local function teamPaintColor(player: Player?): Color3
+	if player and player.Team then
+		for _, team in Config.Teams do
+			if team.Name == player.Team.Name then
+				return team.PaintColor
+			end
+		end
+	end
+	-- unteamed shooter (e.g. the test harness): still drop a visible splat
+	return Config.Teams.Red.PaintColor
+end
+
+local function sameTeam(a: Player?, b: Player?): boolean
+	if not a or not b then
+		return false
+	end
+	if not a.Team or not b.Team then
+		return false
+	end
+	return a.Team == b.Team
+end
+
+-- Initialize a character for combat. Safe to call on every spawn.
+function Combat.setupCharacter(character: Model)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		return
+	end
+	humanoid:SetAttribute("Hits", 0)
+	humanoid:SetAttribute("TaggedOut", false)
+	humanoid.WalkSpeed = Config.Player.WalkSpeed
+	humanoid.JumpPower = Config.Player.JumpPower
+end
+
+-- Freeze the target and start its respawn. Players get the ELIMINATED stamp and reload
+-- at their base spawn. Dummies just drop so the tag-out reads clearly in testing.
+function Combat.tagOut(character: Model, victimPlayer: Player?)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		return
+	end
+	humanoid:SetAttribute("TaggedOut", true)
+
+	if victimPlayer then
+		-- freeze without triggering the Roblox death screen, then respawn on our own clock
+		humanoid.WalkSpeed = 0
+		humanoid.JumpPower = 0
+		humanoid.PlatformStand = true
+		Remotes.PlayerTagged:FireClient(victimPlayer)
+		task.delay(Config.Player.RespawnSeconds, function()
+			if victimPlayer.Parent then
+				victimPlayer:LoadCharacter()
+			end
+		end)
+	else
+		humanoid.Health = 0
+	end
+end
+
+-- Apply a single marker hit. Returns true if the hit landed (passed team and state checks).
+function Combat.applyHit(
+	targetCharacter: Model,
+	hitPosition: Vector3,
+	hitNormal: Vector3,
+	paintColor: Color3,
+	shooterPlayer: Player?
+): boolean
+	local humanoid = targetCharacter:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		return false
+	end
+	if humanoid:GetAttribute("TaggedOut") == true then
+		return false
+	end
+
+	local victimPlayer = Players:GetPlayerFromCharacter(targetCharacter)
+	if not Config.Player.FriendlyFire and sameTeam(shooterPlayer, victimPlayer) then
+		return false
+	end
+
+	-- world splat for everyone, screen flash just for the player who got tagged
+	PaintSplat.spawn(hitPosition, hitNormal, paintColor)
+	if victimPlayer then
+		Remotes.PaintHitVFX:FireClient(victimPlayer, paintColor)
+	end
+
+	local hits = ((humanoid:GetAttribute("Hits") :: number?) or 0) + MARKER.Damage
+	humanoid:SetAttribute("Hits", hits)
+
+	if hits >= MAX_HITS then
+		Combat.tagOut(targetCharacter, victimPlayer)
+	end
+	return true
+end
+
+-- Entry point for a fired shot. shooterPlayer is nil when the test harness drives this.
+function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: Vector3)
+	if shooterPlayer then
+		local now = os.clock()
+		local last = lastFireByPlayer[shooterPlayer] or 0
+		if now - last < MARKER.FireRateSeconds then
+			return
+		end
+		lastFireByPlayer[shooterPlayer] = now
+
+		-- reject a muzzle origin that is nowhere near the shooter
+		local character = shooterPlayer.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") and (root.Position - origin).Magnitude > ORIGIN_TOLERANCE_STUDS then
+			return
+		end
+	end
+
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	if shooterPlayer and shooterPlayer.Character then
+		params.FilterDescendantsInstances = { shooterPlayer.Character }
+	end
+
+	local result = Workspace:Raycast(origin, direction.Unit * MARKER.MaxRangeStuds, params)
+	if not result then
+		return
+	end
+
+	local hitModel = result.Instance:FindFirstAncestorOfClass("Model")
+	if not hitModel or not hitModel:FindFirstChildOfClass("Humanoid") then
+		return
+	end
+
+	Combat.applyHit(hitModel, result.Position, result.Normal, teamPaintColor(shooterPlayer), shooterPlayer)
+end
+
+return Combat

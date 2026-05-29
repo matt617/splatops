@@ -4,327 +4,201 @@
     "explorer/Workspace/Camera/Camera.props.json": {
       "studioHash": "2a13114bfdbbbd795858ccbee2798c59",
       "fileHash": "2a13114bfdbbbd795858ccbee2798c59",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Workspace/Baseplate/Baseplate.props.json": {
       "studioHash": "09b20dce5a1aff5f5f52e52ccc0b5123",
       "fileHash": "09b20dce5a1aff5f5f52e52ccc0b5123",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Workspace/Baseplate/Texture/Texture.props.json": {
       "studioHash": "33e1025766e2d59e32f68c7d591287ca",
       "fileHash": "33e1025766e2d59e32f68c7d591287ca",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Workspace/Terrain/Terrain.props.json": {
       "studioHash": "45903627a99f4cfc7564e412a44a48cc",
       "fileHash": "45903627a99f4cfc7564e412a44a48cc",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Workspace/SpawnLocation/SpawnLocation.props.json": {
       "studioHash": "71940ee9e9c62a33f4c2106b0c911212",
       "fileHash": "71940ee9e9c62a33f4c2106b0c911212",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Workspace/SpawnLocation/Decal/Decal.props.json": {
       "studioHash": "35cbd58dc8fa6dae2db0824c816d7f32",
       "fileHash": "35cbd58dc8fa6dae2db0824c816d7f32",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Workspace/_tree.json": {
       "studioHash": "d35646630491c7564ec264637a424474",
       "fileHash": "d35646630491c7564ec264637a424474",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Lighting/Sky/Sky.props.json": {
       "studioHash": "b64983f0882434300ab2a7f45e3f311b",
       "fileHash": "b64983f0882434300ab2a7f45e3f311b",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Lighting/SunRays/SunRays.props.json": {
       "studioHash": "cee14b50203bb0b15295767d4ff89bb4",
       "fileHash": "cee14b50203bb0b15295767d4ff89bb4",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Lighting/Atmosphere/Atmosphere.props.json": {
       "studioHash": "c8fb079b0681a66220492e97baa1c44e",
       "fileHash": "c8fb079b0681a66220492e97baa1c44e",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Lighting/Bloom/Bloom.props.json": {
       "studioHash": "53f789978243edba162330588180ec1b",
       "fileHash": "53f789978243edba162330588180ec1b",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Lighting/DepthOfField/DepthOfField.props.json": {
       "studioHash": "9967c85183e27f32efdc99ca2c4fe96a",
       "fileHash": "9967c85183e27f32efdc99ca2c4fe96a",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/Lighting/_tree.json": {
       "studioHash": "e1a1cb63026c7644b59ae7f676497291",
       "fileHash": "e1a1cb63026c7644b59ae7f676497291",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/ReplicatedStorage/_tree.json": {
-      "studioHash": "4c0644d499af91d47f6174039a70267d",
-      "fileHash": "4c0644d499af91d47f6174039a70267d",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "studioHash": "b6489ff0b8f4c78bb53c937a1db5da54",
+      "fileHash": "b6489ff0b8f4c78bb53c937a1db5da54",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/ServerStorage/_tree.json": {
       "studioHash": "bfbb879be70e7f29473cd1a7863fce10",
       "fileHash": "bfbb879be70e7f29473cd1a7863fce10",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/ServerScriptService/_tree.json": {
-      "studioHash": "bccd1efa11a749cdbb7e564e630bf3fa",
-      "fileHash": "bccd1efa11a749cdbb7e564e630bf3fa",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "studioHash": "e5448c0368c61f43ee058e1fcc7a6be1",
+      "fileHash": "e5448c0368c61f43ee058e1fcc7a6be1",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/StarterGui/_tree.json": {
       "studioHash": "2b1887b093a5eb098d9a68de7ac72329",
       "fileHash": "2b1887b093a5eb098d9a68de7ac72329",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/StarterPlayer/StarterPlayerScripts/StarterPlayerScripts.props.json": {
       "studioHash": "d28a9d312c9c2a79b7a2856c9dd214ce",
       "fileHash": "d28a9d312c9c2a79b7a2856c9dd214ce",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/StarterPlayer/StarterCharacterScripts/StarterCharacterScripts.props.json": {
       "studioHash": "fc5e70f4537b9907662a6ad6f848d319",
       "fileHash": "fc5e70f4537b9907662a6ad6f848d319",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/StarterPlayer/_tree.json": {
-      "studioHash": "6a203eb467d2ed710e46bc78b23eef29",
-      "fileHash": "6a203eb467d2ed710e46bc78b23eef29",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "studioHash": "8c6ea7a1c6600e440045f7613c7a72f5",
+      "fileHash": "8c6ea7a1c6600e440045f7613c7a72f5",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/StarterPack/_tree.json": {
-      "studioHash": "9ee962d8884fe5c3a2de9b8edb48fcc7",
-      "fileHash": "9ee962d8884fe5c3a2de9b8edb48fcc7",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "studioHash": "19990aa35dddf882db35a36089e62bc7",
+      "fileHash": "19990aa35dddf882db35a36089e62bc7",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/ReplicatedFirst/_tree.json": {
       "studioHash": "a6789095fa955be5b550667fb737a097",
       "fileHash": "a6789095fa955be5b550667fb737a097",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/SoundService/_tree.json": {
       "studioHash": "57238b1cf3b3020ca3c8448333318b9b",
       "fileHash": "57238b1cf3b3020ca3c8448333318b9b",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/ChatWindowConfiguration/ChatWindowConfiguration.props.json": {
       "studioHash": "dbf3cceb5a5635169b98f01770f64b36",
       "fileHash": "dbf3cceb5a5635169b98f01770f64b36",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/ChatInputBarConfiguration/ChatInputBarConfiguration.props.json": {
       "studioHash": "a404923bf3b847f8208cfc586e2f8b08",
       "fileHash": "a404923bf3b847f8208cfc586e2f8b08",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/BubbleChatConfiguration/BubbleChatConfiguration.props.json": {
       "studioHash": "6e6f4f852c32be909b0bf1f81cc40b60",
       "fileHash": "6e6f4f852c32be909b0bf1f81cc40b60",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/BubbleChatConfiguration/UIGradient/UIGradient.props.json": {
       "studioHash": "b8461af90d3777b913f75d72d4b5dc6a",
       "fileHash": "b8461af90d3777b913f75d72d4b5dc6a",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/BubbleChatConfiguration/ImageLabel/ImageLabel.props.json": {
       "studioHash": "c873e450715e14e841b7dea0638eb710",
       "fileHash": "c873e450715e14e841b7dea0638eb710",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/BubbleChatConfiguration/UICorner/UICorner.props.json": {
       "studioHash": "e70bcf1daca78e9a2cc278d6e01ad2a9",
       "fileHash": "e70bcf1daca78e9a2cc278d6e01ad2a9",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/BubbleChatConfiguration/UIPadding/UIPadding.props.json": {
       "studioHash": "eb0cfbab323fc2a026efbb24643c72a9",
       "fileHash": "eb0cfbab323fc2a026efbb24643c72a9",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/ChannelTabsConfiguration/ChannelTabsConfiguration.props.json": {
       "studioHash": "5b4286c7c5760cfdd4fa8b2c225b77bf",
       "fileHash": "5b4286c7c5760cfdd4fa8b2c225b77bf",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     },
     "explorer/TextChatService/_tree.json": {
       "studioHash": "469a2e87d402da3548fad69aee36c792",
       "fileHash": "469a2e87d402da3548fad69aee36c792",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ReplicatedStorage/Shared/Config/Config.props.json": {
-      "studioHash": "4ba9cf31b02c2e1af31275015fbd6ee9",
-      "fileHash": "4ba9cf31b02c2e1af31275015fbd6ee9",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ReplicatedStorage/Shared/Config/Config.module.luau": {
-      "studioHash": "e14ff17b39e1624653f29ee56eefd605",
-      "fileHash": "e14ff17b39e1624653f29ee56eefd605",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ReplicatedStorage/Shared/Remotes/Remotes.props.json": {
-      "studioHash": "76a3e28d06e89f1b8a6d9149979f2f72",
-      "fileHash": "76a3e28d06e89f1b8a6d9149979f2f72",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ReplicatedStorage/Shared/Remotes/Remotes.module.luau": {
-      "studioHash": "6c7cf0bf57b5b11cfe75b71a7ed27e91",
-      "fileHash": "6c7cf0bf57b5b11cfe75b71a7ed27e91",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ReplicatedStorage/Shared/PaintSplat/PaintSplat.props.json": {
-      "studioHash": "81308f4176dabc83792164d1e9dc6fd3",
-      "fileHash": "81308f4176dabc83792164d1e9dc6fd3",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ReplicatedStorage/Shared/PaintSplat/PaintSplat.module.luau": {
-      "studioHash": "df68ad0d4cf403fffb1a1f3132dc5d0e",
-      "fileHash": "df68ad0d4cf403fffb1a1f3132dc5d0e",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ReplicatedStorage/Shared/Shared.props.json": {
-      "studioHash": "9e1ce790291538d19370cce9c8804e2c",
-      "fileHash": "9e1ce790291538d19370cce9c8804e2c",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ServerScriptService/Combat/Combat.props.json": {
-      "studioHash": "0ac4bfe4ad0f34f4fce6e0b26456bfa3",
-      "fileHash": "0ac4bfe4ad0f34f4fce6e0b26456bfa3",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ServerScriptService/Combat/Combat.module.luau": {
-      "studioHash": "0e70b54bb216df345ae816e7c380aeca",
-      "fileHash": "0e70b54bb216df345ae816e7c380aeca",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ServerScriptService/CombatService/CombatService.props.json": {
-      "studioHash": "f64fb66fe2a77212518d3da37522adc6",
-      "fileHash": "f64fb66fe2a77212518d3da37522adc6",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/ServerScriptService/CombatService/CombatService.server.luau": {
-      "studioHash": "7c99c527a5160597f119556df645103d",
-      "fileHash": "7c99c527a5160597f119556df645103d",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/StarterPack/AssaultMarker~2/AssaultMarker.props.json": {
-      "studioHash": "210ea0c1494b43a0ea4279f721f7ec9e",
-      "fileHash": "210ea0c1494b43a0ea4279f721f7ec9e",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/StarterPack/AssaultMarker/Handle/Handle.props.json": {
-      "studioHash": "399340a8d9876488b27679af47961ff2",
-      "fileHash": "399340a8d9876488b27679af47961ff2",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/StarterPack/AssaultMarker/MarkerClient/MarkerClient.props.json": {
-      "studioHash": "9e6b92d177f11dcd12768ee17a9c1995",
-      "fileHash": "9e6b92d177f11dcd12768ee17a9c1995",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/StarterPack/AssaultMarker/MarkerClient/MarkerClient.client.luau": {
-      "studioHash": "cd262ea9e345cbddaa3b1dca71cce9b6",
-      "fileHash": "cd262ea9e345cbddaa3b1dca71cce9b6",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/StarterPlayer/StarterPlayerScripts/EliminatedHud/EliminatedHud.props.json": {
-      "studioHash": "c2a0bb3dae46f8f8fabf19b4c3d26693",
-      "fileHash": "c2a0bb3dae46f8f8fabf19b4c3d26693",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/StarterPlayer/StarterPlayerScripts/EliminatedHud/EliminatedHud.client.luau": {
-      "studioHash": "719431a35698af874ba9aa7a1161e7bd",
-      "fileHash": "719431a35698af874ba9aa7a1161e7bd",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/Workspace/Camera~2/Camera.props.json": {
-      "studioHash": "2a13114bfdbbbd795858ccbee2798c59",
-      "fileHash": "2a13114bfdbbbd795858ccbee2798c59",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/Workspace/Camera~1/Camera.props.json": {
-      "studioHash": "d4e29d318d3765050af869ffdaa7caeb",
-      "fileHash": "d4e29d318d3765050af869ffdaa7caeb",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/Workspace/Terrain~2/Terrain.props.json": {
-      "studioHash": "45903627a99f4cfc7564e412a44a48cc",
-      "fileHash": "45903627a99f4cfc7564e412a44a48cc",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
-      "status": "synced"
-    },
-    "explorer/Workspace/Terrain~1/Terrain.props.json": {
-      "studioHash": "457d2ef0e81b81d5c0bf1df38a171e6f",
-      "fileHash": "457d2ef0e81b81d5c0bf1df38a171e6f",
-      "lastStudioSync": "2026-05-29T21:10:48.904Z",
+      "lastStudioSync": "2026-05-29T20:52:15.932Z",
       "status": "synced"
     }
   },
   "nameMappings": {
-    "game.Workspace.Camera#1": "Camera~1",
+    "game.Workspace.Camera#1": "Camera",
     "game.Workspace.Baseplate#1": "Baseplate",
     "game.Workspace.Baseplate.Texture#1": "Texture",
-    "game.Workspace.Terrain#1": "Terrain~1",
+    "game.Workspace.Terrain#1": "Terrain",
     "game.Workspace.SpawnLocation#1": "SpawnLocation",
     "game.Workspace.SpawnLocation.Decal#1": "Decal",
     "game.Lighting.Sky#1": "Sky",
@@ -341,24 +215,23 @@
     "game.TextChatService.BubbleChatConfiguration.ImageLabel#1": "ImageLabel",
     "game.TextChatService.BubbleChatConfiguration.UICorner#1": "UICorner",
     "game.TextChatService.BubbleChatConfiguration.UIPadding#1": "UIPadding",
-    "game.TextChatService.ChannelTabsConfiguration#1": "ChannelTabsConfiguration",
-    "game.ReplicatedStorage.Shared#1": "Shared",
-    "game.ReplicatedStorage.Shared.Config#1": "Config",
-    "game.ReplicatedStorage.Shared.Remotes#1": "Remotes",
-    "game.ReplicatedStorage.Shared.PaintSplat#1": "PaintSplat",
-    "game.ServerScriptService.Combat#1": "Combat",
-    "game.ServerScriptService.CombatService#1": "CombatService",
-    "game.StarterPack.AssaultMarker.Handle#1": "Handle",
-    "game.StarterPack.AssaultMarker.MarkerClient#1": "MarkerClient",
-    "game.StarterPlayer.StarterPlayerScripts.EliminatedHud#1": "EliminatedHud"
+    "game.TextChatService.ChannelTabsConfiguration#1": "ChannelTabsConfiguration"
   },
   "reverseNameMappings": {
+    "Workspace/Camera": {
+      "instancePath": "game.Workspace.Camera",
+      "siblingIndex": 1
+    },
     "Workspace/Baseplate": {
       "instancePath": "game.Workspace.Baseplate",
       "siblingIndex": 1
     },
     "Workspace/Baseplate/Texture": {
       "instancePath": "game.Workspace.Baseplate.Texture",
+      "siblingIndex": 1
+    },
+    "Workspace/Terrain": {
+      "instancePath": "game.Workspace.Terrain",
       "siblingIndex": 1
     },
     "Workspace/SpawnLocation": {
@@ -428,69 +301,13 @@
     "TextChatService/ChannelTabsConfiguration": {
       "instancePath": "game.TextChatService.ChannelTabsConfiguration",
       "siblingIndex": 1
-    },
-    "ReplicatedStorage/Shared": {
-      "instancePath": "game.ReplicatedStorage.Shared",
-      "siblingIndex": 1
-    },
-    "ReplicatedStorage/Shared/Config": {
-      "instancePath": "game.ReplicatedStorage.Shared.Config",
-      "siblingIndex": 1
-    },
-    "ReplicatedStorage/Shared/Remotes": {
-      "instancePath": "game.ReplicatedStorage.Shared.Remotes",
-      "siblingIndex": 1
-    },
-    "ReplicatedStorage/Shared/PaintSplat": {
-      "instancePath": "game.ReplicatedStorage.Shared.PaintSplat",
-      "siblingIndex": 1
-    },
-    "ServerScriptService/Combat": {
-      "instancePath": "game.ServerScriptService.Combat",
-      "siblingIndex": 1
-    },
-    "ServerScriptService/CombatService": {
-      "instancePath": "game.ServerScriptService.CombatService",
-      "siblingIndex": 1
-    },
-    "StarterPack/AssaultMarker~2": {
-      "instancePath": "game.StarterPack.AssaultMarker",
-      "siblingIndex": 1
-    },
-    "StarterPack/AssaultMarker/Handle": {
-      "instancePath": "game.StarterPack.AssaultMarker.Handle",
-      "siblingIndex": 1
-    },
-    "StarterPack/AssaultMarker/MarkerClient": {
-      "instancePath": "game.StarterPack.AssaultMarker.MarkerClient",
-      "siblingIndex": 1
-    },
-    "StarterPlayer/StarterPlayerScripts/EliminatedHud": {
-      "instancePath": "game.StarterPlayer.StarterPlayerScripts.EliminatedHud",
-      "siblingIndex": 1
-    },
-    "Workspace/Camera~2": {
-      "instancePath": "game.Workspace.Camera",
-      "siblingIndex": 1
-    },
-    "Workspace/Camera~1": {
-      "instancePath": "game.Workspace.Camera",
-      "siblingIndex": 1
-    },
-    "Workspace/Terrain~2": {
-      "instancePath": "game.Workspace.Terrain",
-      "siblingIndex": 1
-    },
-    "Workspace/Terrain~1": {
-      "instancePath": "game.Workspace.Terrain",
-      "siblingIndex": 1
     }
   },
   "instanceDirMappings": {
-    "game.Workspace.Camera#1": "Workspace/Camera~1",
+    "game.Workspace.Camera#1": "Workspace/Camera",
     "game.Workspace.Baseplate#1": "Workspace/Baseplate",
     "game.Workspace.Baseplate.Texture#1": "Workspace/Baseplate/Texture",
-    "game.Workspace.Terrain#1": "Workspace/Terrain~1",
+    "game.Workspace.Terrain#1": "Workspace/Terrain",
     "game.Workspace.SpawnLocation#1": "Workspace/SpawnLocation",
     "game.Workspace.SpawnLocation.Decal#1": "Workspace/SpawnLocation/Decal",
     "game.Lighting.Sky#1": "Lighting/Sky",
@@ -507,16 +324,7 @@
     "game.TextChatService.BubbleChatConfiguration.ImageLabel#1": "TextChatService/BubbleChatConfiguration/ImageLabel",
     "game.TextChatService.BubbleChatConfiguration.UICorner#1": "TextChatService/BubbleChatConfiguration/UICorner",
     "game.TextChatService.BubbleChatConfiguration.UIPadding#1": "TextChatService/BubbleChatConfiguration/UIPadding",
-    "game.TextChatService.ChannelTabsConfiguration#1": "TextChatService/ChannelTabsConfiguration",
-    "game.ReplicatedStorage.Shared#1": "ReplicatedStorage/Shared",
-    "game.ReplicatedStorage.Shared.Config#1": "ReplicatedStorage/Shared/Config",
-    "game.ReplicatedStorage.Shared.Remotes#1": "ReplicatedStorage/Shared/Remotes",
-    "game.ReplicatedStorage.Shared.PaintSplat#1": "ReplicatedStorage/Shared/PaintSplat",
-    "game.ServerScriptService.Combat#1": "ServerScriptService/Combat",
-    "game.ServerScriptService.CombatService#1": "ServerScriptService/CombatService",
-    "game.StarterPack.AssaultMarker.Handle#1": "StarterPack/AssaultMarker/Handle",
-    "game.StarterPack.AssaultMarker.MarkerClient#1": "StarterPack/AssaultMarker/MarkerClient",
-    "game.StarterPlayer.StarterPlayerScripts.EliminatedHud#1": "StarterPlayer/StarterPlayerScripts/EliminatedHud"
+    "game.TextChatService.ChannelTabsConfiguration#1": "TextChatService/ChannelTabsConfiguration"
   },
   "instanceClassMappings": {
     "game.Workspace.Camera#1": "Camera",
@@ -539,19 +347,7 @@
     "game.TextChatService.BubbleChatConfiguration.ImageLabel#1": "ImageLabel",
     "game.TextChatService.BubbleChatConfiguration.UICorner#1": "UICorner",
     "game.TextChatService.BubbleChatConfiguration.UIPadding#1": "UIPadding",
-    "game.TextChatService.ChannelTabsConfiguration#1": "ChannelTabsConfiguration",
-    "game.ReplicatedStorage.Shared#1": "Folder",
-    "game.ReplicatedStorage.Shared.Config#1": "ModuleScript",
-    "game.ReplicatedStorage.Shared.Remotes#1": "ModuleScript",
-    "game.ReplicatedStorage.Shared.PaintSplat#1": "ModuleScript",
-    "game.ServerScriptService.Combat#1": "ModuleScript",
-    "game.ServerScriptService.CombatService#1": "Script",
-    "game.StarterPack.AssaultMarker~2#1": "Tool",
-    "game.StarterPack.AssaultMarker.Handle#1": "Part",
-    "game.StarterPack.AssaultMarker.MarkerClient#1": "LocalScript",
-    "game.StarterPlayer.StarterPlayerScripts.EliminatedHud#1": "LocalScript",
-    "game.Workspace.Camera~2#1": "Camera",
-    "game.Workspace.Terrain~2#1": "Terrain"
+    "game.TextChatService.ChannelTabsConfiguration#1": "ChannelTabsConfiguration"
   },
   "sessionDebugMappings": {
     "process:683e80cc-f16a-4392-81d3-b0ddc3117491\u00000_138716": {

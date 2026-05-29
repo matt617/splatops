@@ -1,0 +1,32 @@
+{
+  "name": "HumanoidRootPart",
+  "className": "Part",
+  "properties": {
+    "BrickColor": "Light grey",
+    "Color": {
+      "b": 200,
+      "g": 195,
+      "r": 190
+    },
+    "CFrame": [
+      0,
+      3,
+      -20,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    "Anchored": true,
+    "Size": {
+      "y": 2,
+      "x": 2,
+      "z": 1
+    }
+  }
+}

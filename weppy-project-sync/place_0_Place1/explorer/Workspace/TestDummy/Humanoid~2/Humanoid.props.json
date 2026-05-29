@@ -1,0 +1,9 @@
+{
+  "name": "Humanoid",
+  "className": "Humanoid",
+  "properties": {},
+  "attributes": {
+    "Hits": 3,
+    "TaggedOut": true
+  }
+}
