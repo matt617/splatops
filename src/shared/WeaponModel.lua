@@ -105,6 +105,8 @@ local function meshTemplate(meshId: string): MeshPart?
 	return part
 end
 
+local GLASS = Color3.fromRGB(120, 170, 235)
+
 local function buildFromMeshes(tool: Tool, def, accent: Color3)
 	local handle = tool:WaitForChild("Handle") :: BasePart
 	handle.Transparency = 1
@@ -112,6 +114,9 @@ local function buildFromMeshes(tool: Tool, def, accent: Color3)
 	handle.CanCollide = false
 	local body = def.parts[1]
 	handle.Size = Vector3.new(body.size[1] * def.scale, body.size[2] * def.scale, body.size[3] * def.scale)
+
+	-- per-weapon rotation so each imported model ends up barrel-forward (-Z), grip down, scope up
+	local baseRot = def.baseRot or CFrame.identity
 
 	for _, part in def.parts do
 		local template = meshTemplate(part.mesh)
@@ -126,12 +131,16 @@ local function buildFromMeshes(tool: Tool, def, accent: Color3)
 			mp.Material = Enum.Material.SmoothPlastic
 			if part.role == "team" then
 				mp.Color = accent
+			elseif part.role == "glass" then
+				mp.Color = GLASS
+				mp.Material = Enum.Material.Glass
+				mp.Transparency = 0.25
 			elseif part.role == "trim" then
 				mp.Color = DARK
 			else
 				mp.Color = GUN
 			end
-			local cf = CFrame.new(part.pos[1] * def.scale, part.pos[2] * def.scale, part.pos[3] * def.scale)
+			local cf = baseRot * CFrame.new(part.pos[1] * def.scale, part.pos[2] * def.scale, part.pos[3] * def.scale)
 			mp.CFrame = handle.CFrame * cf
 			mp.Parent = tool
 			local weld = Instance.new("Weld")
