@@ -1,9 +1,11 @@
 {
   "className": "Part",
   "properties": {
-    "Size": [1.0, 1.1, 2.4],
-    "Color": [0.2275, 0.2431, 0.2667],
+    "Size": [2.0, 0.68, 0.68],
+    "Color": [0.1569, 0.4706, 0.4706],
     "Material": "Metal",
+    "Shape": "Cylinder",
+    "Anchored": false,
     "CanCollide": false,
     "Massless": true
   }
