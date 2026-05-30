@@ -43,6 +43,7 @@ end
 
 -- Combat
 Remotes.FireWeapon = remote("FireWeapon", "RemoteEvent")
+Remotes.ReloadWeapon = remote("ReloadWeapon", "RemoteEvent")
 Remotes.PlayerTagged = remote("PlayerTagged", "RemoteEvent")
 Remotes.PaintHitVFX = remote("PaintHitVFX", "RemoteEvent")
 

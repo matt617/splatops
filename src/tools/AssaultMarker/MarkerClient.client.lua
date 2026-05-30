@@ -1,11 +1,11 @@
 --!strict
--- Assault Marker, client side. Fires where you click or tap. The cursor stays visible,
--- and on a touch screen (iPad) tapping the screen activates the tool, so the same code
--- works for mouse and touch. The server owns the paintball and all hit detection; we
--- only report the ray the player aimed through.
+-- Assault Marker, client side. Fires where you click or tap (cursor stays visible, so the
+-- same input works for mouse and iPad touch), shows an ammo readout, and reloads on R.
+-- The server owns the paintball, hit detection, and ammo; we only report aim and intent.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -13,11 +13,65 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 
 local MARKER = Config.Weapons.AssaultMarker
 local tool = script.Parent :: Tool
-local mouse = Players.LocalPlayer:GetMouse()
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local mouse = player:GetMouse()
 
 tool.ToolTip = MARKER.DisplayName
 
--- client-side cadence gate, just for feel. the server enforces the real rate.
+-- ammo HUD, bottom-right, shown only while equipped. Clear any stale copy from a past life.
+local stale = playerGui:FindFirstChild("MarkerHud")
+if stale then
+	stale:Destroy()
+end
+
+local hud = Instance.new("ScreenGui")
+hud.Name = "MarkerHud"
+hud.ResetOnSpawn = false
+hud.Enabled = false
+hud.Parent = playerGui
+
+local ammoLabel = Instance.new("TextLabel")
+ammoLabel.AnchorPoint = Vector2.new(1, 1)
+ammoLabel.Position = UDim2.new(1, -16, 1, -16)
+ammoLabel.Size = UDim2.fromOffset(150, 42)
+ammoLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ammoLabel.BackgroundTransparency = 0.35
+ammoLabel.Font = Enum.Font.GothamBold
+ammoLabel.TextScaled = true
+ammoLabel.Text = ""
+ammoLabel.Parent = hud
+local pad = Instance.new("UIPadding")
+pad.PaddingLeft = UDim.new(0, 10)
+pad.PaddingRight = UDim.new(0, 10)
+pad.Parent = ammoLabel
+
+local function refresh()
+	local ammo = (tool:GetAttribute("Ammo") :: number?) or MARKER.AmmoPerMag
+	if tool:GetAttribute("Reloading") == true then
+		ammoLabel.Text = "RELOADING"
+		ammoLabel.TextColor3 = Color3.fromRGB(255, 200, 80)
+	else
+		ammoLabel.Text = string.format("%d / %d", ammo, MARKER.AmmoPerMag)
+		ammoLabel.TextColor3 = if ammo <= 0 then Color3.fromRGB(235, 80, 80) else Color3.fromRGB(235, 235, 235)
+	end
+end
+
+tool:GetAttributeChangedSignal("Ammo"):Connect(refresh)
+tool:GetAttributeChangedSignal("Reloading"):Connect(refresh)
+
+local equipped = false
+tool.Equipped:Connect(function()
+	equipped = true
+	hud.Enabled = true
+	refresh()
+end)
+tool.Unequipped:Connect(function()
+	equipped = false
+	hud.Enabled = false
+end)
+
+-- client-side cadence gate, just for feel. the server enforces the real rate and ammo.
 local lastFire = 0
 
 tool.Activated:Connect(function()
@@ -31,7 +85,16 @@ tool.Activated:Connect(function()
 	if not camera then
 		return
 	end
-	-- aim through the cursor on PC, or the tapped point on a touch screen
 	local ray = camera:ScreenPointToRay(mouse.X, mouse.Y)
 	Remotes.FireWeapon:FireServer(ray.Origin, ray.Direction)
+end)
+
+-- manual reload on PC; touch devices auto-reload when the marker runs dry (server-side)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed or not equipped then
+		return
+	end
+	if input.KeyCode == Enum.KeyCode.R then
+		Remotes.ReloadWeapon:FireServer()
+	end
 end)

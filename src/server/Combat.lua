@@ -53,6 +53,35 @@ local function sameTeam(a: Player?, b: Player?): boolean
 	return a.Team == b.Team
 end
 
+local function getEquippedTool(player: Player): Tool?
+	local character = player.Character
+	if not character then
+		return nil
+	end
+	return character:FindFirstChildOfClass("Tool")
+end
+
+-- Refill the equipped marker after a delay. Safe to call any time; it no-ops if the
+-- marker is already full or already reloading. Ammo lives on the Tool so it replicates
+-- to the owner's HUD for free.
+function Combat.reload(player: Player)
+	local tool = getEquippedTool(player)
+	if not tool or tool:GetAttribute("Reloading") == true then
+		return
+	end
+	local ammo = (tool:GetAttribute("Ammo") :: number?) or MARKER.AmmoPerMag
+	if ammo >= MARKER.AmmoPerMag then
+		return
+	end
+	tool:SetAttribute("Reloading", true)
+	task.delay(MARKER.ReloadSeconds, function()
+		if tool.Parent then
+			tool:SetAttribute("Ammo", MARKER.AmmoPerMag)
+		end
+		tool:SetAttribute("Reloading", false)
+	end)
+end
+
 -- where the paintball leaves the marker: the held Handle if we can find it, else the chest
 local function getMuzzle(shooterPlayer: Player?, fallback: Vector3): Vector3
 	if shooterPlayer and shooterPlayer.Character then
@@ -193,6 +222,20 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 			return
 		end
 		lastFireByPlayer[shooterPlayer] = now
+
+		-- ammo: an empty marker does not fire, it auto-reloads instead
+		local tool = getEquippedTool(shooterPlayer)
+		if tool then
+			if tool:GetAttribute("Reloading") == true then
+				return
+			end
+			local ammo = (tool:GetAttribute("Ammo") :: number?) or MARKER.AmmoPerMag
+			if ammo <= 0 then
+				Combat.reload(shooterPlayer)
+				return
+			end
+			tool:SetAttribute("Ammo", ammo - 1)
+		end
 
 		-- trust the camera origin only when it sits near the shooter, else fire from them
 		local character = shooterPlayer.Character

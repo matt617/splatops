@@ -32,3 +32,7 @@ Remotes.FireWeapon.OnServerEvent:Connect(function(player, origin, direction)
 	end
 	Combat.handleFire(player, origin, direction)
 end)
+
+Remotes.ReloadWeapon.OnServerEvent:Connect(function(player)
+	Combat.reload(player)
+end)
