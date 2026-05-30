@@ -34,7 +34,9 @@ Config.Player = {
 -- ============================================================================
 
 Config.Tower = {
-	MaxHealth = 500, -- tune so a sustained team push takes ~2 to 4 minutes
+	-- tower health scales with the attacking team: maxHealth = HealthPerPlayer x attackers,
+	-- so time-to-destroy stays similar at any team size (1v1 up to 4v4).
+	HealthPerPlayer = 75,
 	HitsToDamageRatio = 1, -- 1 paint hit = 1 damage by default
 	RegenPerSecond = 0, -- no regen for v1, keep pressure meaningful
 }

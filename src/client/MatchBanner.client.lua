@@ -30,30 +30,27 @@ status.Text = ""
 status.Visible = false
 status.Parent = gui
 
-local maxHealth: number? = nil
-local redHealth: number? = nil
-local blueHealth: number? = nil
+local redHealth: number?, blueHealth: number?, redMax: number?, blueMax: number? = nil, nil, nil, nil
 
 local function refresh()
-	if not maxHealth then
+	if not redMax and not blueMax then
 		return
 	end
 	status.Visible = true
 	status.Text = string.format(
 		"RED  %d/%d        BLUE  %d/%d",
-		redHealth or maxHealth,
-		maxHealth,
-		blueHealth or maxHealth,
-		maxHealth
+		redHealth or redMax or 0,
+		redMax or 0,
+		blueHealth or blueMax or 0,
+		blueMax or 0
 	)
 end
 
 Remotes.TowerDamaged.OnClientEvent:Connect(function(owner: string, health: number, max: number)
-	maxHealth = max
 	if owner == "Red" then
-		redHealth = health
+		redHealth, redMax = health, max
 	elseif owner == "Blue" then
-		blueHealth = health
+		blueHealth, blueMax = health, max
 	end
 	refresh()
 end)
@@ -86,6 +83,6 @@ Remotes.MatchStarting.OnClientEvent:Connect(function(active: boolean)
 	banner.Visible = false
 	if not active then
 		status.Visible = false
-		redHealth, blueHealth, maxHealth = nil, nil, nil
+		redHealth, blueHealth, redMax, blueMax = nil, nil, nil, nil
 	end
 end)

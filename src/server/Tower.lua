@@ -4,6 +4,7 @@
 -- The team that destroys the enemy tower wins.
 
 local Workspace = game:GetService("Workspace")
+local Teams = game:GetService("Teams")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -18,7 +19,7 @@ local Tower = {}
 -- flow listens to this to end the round.
 Tower.Destroyed = Instance.new("BindableEvent")
 
-local MAX_HEALTH = Config.Tower.MaxHealth
+local HEALTH_PER_PLAYER = Config.Tower.HealthPerPlayer
 local DAMAGE_PER_HIT = Config.Tower.HitsToDamageRatio
 
 -- Towers store a short owner tag ("Red"/"Blue") in their Team attribute, set by the
@@ -32,12 +33,25 @@ function Tower.isMatchOver(): boolean
 	return matchOver
 end
 
--- Find every comms tower in the arena and set its starting health. Call on match start.
+-- how many players are on the team that attacks this tower (its enemy)
+local function attackerCount(owner: string): number
+	local team = Teams:FindFirstChild(ENEMY_NAME[owner])
+	if team and team:IsA("Team") then
+		return #team:GetPlayers()
+	end
+	return 0
+end
+
+-- Set each tower's health, scaled to its attacking team's size. Call on match start.
 function Tower.registerAll()
 	matchOver = false
 	for _, part in Workspace:GetDescendants() do
 		if part:IsA("BasePart") and part.Name == "CommsTower" then
-			part:SetAttribute("Health", MAX_HEALTH)
+			local owner = part:GetAttribute("Team") :: string?
+			local attackers = if owner then attackerCount(owner) else 0
+			local maxHp = HEALTH_PER_PLAYER * math.max(1, attackers)
+			part:SetAttribute("MaxHealth", maxHp)
+			part:SetAttribute("Health", maxHp)
 			part:SetAttribute("Destroyed", false)
 		end
 	end
@@ -75,12 +89,13 @@ function Tower.applyDamage(towerPart: BasePart, hitPosition: Vector3, hitNormal:
 
 	PaintSplat.spawn(hitPosition, hitNormal, paintColor)
 
-	local health = math.max(0, ((towerPart:GetAttribute("Health") :: number?) or MAX_HEALTH) - DAMAGE_PER_HIT)
+	local maxHp = (towerPart:GetAttribute("MaxHealth") :: number?) or HEALTH_PER_PLAYER
+	local health = math.max(0, ((towerPart:GetAttribute("Health") :: number?) or maxHp) - DAMAGE_PER_HIT)
 	towerPart:SetAttribute("Health", health)
 	if shooterPlayer then
 		Economy.award(shooterPlayer, Config.Economy.CoinsPerTowerHit)
 	end
-	Remotes.TowerDamaged:FireAllClients(owner, health, MAX_HEALTH)
+	Remotes.TowerDamaged:FireAllClients(owner, health, maxHp)
 
 	if health <= 0 then
 		towerPart:SetAttribute("Destroyed", true)
