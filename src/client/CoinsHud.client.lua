@@ -13,9 +13,10 @@ gui.Name = "CoinsHud"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- bottom-right, sitting just above the ammo readout so it clears the player list up top
 local label = Instance.new("TextLabel")
-label.AnchorPoint = Vector2.new(1, 0)
-label.Position = UDim2.new(1, -16, 0, 16)
+label.AnchorPoint = Vector2.new(1, 1)
+label.Position = UDim2.new(1, -16, 1, -66)
 label.Size = UDim2.fromOffset(150, 38)
 label.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 label.BackgroundTransparency = 0.3
