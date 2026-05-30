@@ -5,8 +5,14 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local LobbyMode = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyMode"))
-if LobbyMode.get() ~= "party" then
+-- read the server's authoritative role; the client cannot reliably detect a reserved server
+local function serverMode(): string
+	while not ReplicatedStorage:GetAttribute("ServerMode") do
+		task.wait(0.1)
+	end
+	return ReplicatedStorage:GetAttribute("ServerMode") :: string
+end
+if serverMode() ~= "party" then
 	return
 end
 

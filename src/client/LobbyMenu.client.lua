@@ -8,9 +8,16 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TeleportService = game:GetService("TeleportService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local LobbyMode = require(Shared:WaitForChild("LobbyMode"))
-if LobbyMode.get() ~= "entry" then
-	return
+
+-- read the server's authoritative role; the client cannot reliably detect a reserved server
+local function serverMode(): string
+	while not ReplicatedStorage:GetAttribute("ServerMode") do
+		task.wait(0.1)
+	end
+	return ReplicatedStorage:GetAttribute("ServerMode") :: string
+end
+if serverMode() ~= "entry" then
+	return -- already inside a party lobby; no menu here
 end
 local Remotes = require(Shared:WaitForChild("Remotes"))
 
