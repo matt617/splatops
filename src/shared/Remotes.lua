@@ -53,6 +53,7 @@ Remotes.PracticeProgress = remote("PracticeProgress", "RemoteEvent")
 -- Economy / Quartermaster
 Remotes.PurchaseItem = remote("PurchaseItem", "RemoteFunction")
 Remotes.CoinsChanged = remote("CoinsChanged", "RemoteEvent")
+Remotes.OpenShop = remote("OpenShop", "RemoteEvent") -- server tells a client to open the shop
 
 -- Match flow
 Remotes.MatchStarting = remote("MatchStarting", "RemoteEvent")

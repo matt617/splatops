@@ -293,7 +293,7 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 	local speed = weapon.ProjectileSpeed or 130
 	local gravity = weapon.ProjectileGravity or 0
 	local size = weapon.ProjectileSize or 0.8
-	local range = weapon.MaxRangeStuds
+	local range = weapon.MaxRangeStuds or 120
 	local damage = weapon.Damage or 1
 	local paintColor = teamPaintColor(shooterPlayer)
 

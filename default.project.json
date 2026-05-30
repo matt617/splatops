@@ -8,6 +8,9 @@
     "ReplicatedStorage": {
       "Shared": {
         "$path": "src/shared"
+      },
+      "WeaponTemplates": {
+        "$path": "src/weapons"
       }
     },
     "StarterPack": {

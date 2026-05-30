@@ -1,5 +1,3 @@
 --!strict
--- Per-tool stub: build this marker's model via the shared WeaponModel (it reads the per-weapon
--- style by the tool's name and welds the cosmetic parts to the Handle).
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("WeaponModel")).build(script.Parent)
