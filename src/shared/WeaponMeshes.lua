@@ -85,4 +85,17 @@ WeaponMeshes.Mortar = {
 	},
 }
 
+-- Scattergun: imported barrel-up (+Y) like the Recon; same rotation to barrel-forward.
+WeaponMeshes.Scattergun = {
+	scale = 0.7,
+	baseRot = CFrame.fromMatrix(Vector3.zero, Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1)),
+	parts = {
+		{ name = "BlackRubber", mesh = "rbxassetid://139091976473196", size = { 0.736, 3.900, 1.528 }, pos = { 0.000, 0.000, 0.000 }, role = "trim" },
+		{ name = "DarkGunmetal", mesh = "rbxassetid://123192519986175", size = { 0.922, 3.710, 1.043 }, pos = { 0.000, 0.035, -0.442 }, role = "body" },
+		{ name = "TeamColor", mesh = "rbxassetid://129872914114454", size = { 1.112, 2.078, 1.627 }, pos = { 0.000, 0.506, -0.920 }, role = "team" },
+		{ name = "DetailGray", mesh = "rbxassetid://94537357405597", size = { 1.030, 1.016, 1.220 }, pos = { 0.000, -0.045, -0.654 }, role = "body" },
+		{ name = "SoftBlueGlass", mesh = "rbxassetid://95174327251050", size = { 0.240, 0.035, 0.140 }, pos = { 0.000, 0.335, -1.154 }, role = "glass" },
+	},
+}
+
 return WeaponMeshes
