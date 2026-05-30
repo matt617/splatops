@@ -55,31 +55,13 @@ local function label(part: BasePart, face: Enum.NormalId, text: string, color: C
 	t.Parent = sg
 end
 
--- a concentric bullseye drawn on one face (gray-box; an art-pass decal replaces it)
+-- the uploaded paintball target face, applied as a decal to each target part
+local BULLSEYE_ID = "rbxassetid://77350606379459"
 local function bullseye(part: BasePart, face: Enum.NormalId)
-	local sg = Instance.new("SurfaceGui")
-	sg.Name = "Bullseye"
-	sg.Face = face
-	sg.Parent = part
-	local rings = {
-		{ s = 1.00, c = Color3.fromRGB(235, 235, 235) },
-		{ s = 0.78, c = Color3.fromRGB(210, 60, 60) },
-		{ s = 0.54, c = Color3.fromRGB(235, 235, 235) },
-		{ s = 0.30, c = Color3.fromRGB(210, 60, 60) },
-		{ s = 0.12, c = Color3.fromRGB(40, 40, 46) },
-	}
-	for _, ring in ipairs(rings) do
-		local f = Instance.new("Frame")
-		f.AnchorPoint = Vector2.new(0.5, 0.5)
-		f.Position = UDim2.fromScale(0.5, 0.5)
-		f.Size = UDim2.fromScale(ring.s, ring.s)
-		f.BackgroundColor3 = ring.c
-		f.BorderSizePixel = 0
-		f.Parent = sg
-		local c = Instance.new("UICorner")
-		c.CornerRadius = UDim.new(0.5, 0)
-		c.Parent = f
-	end
+	local d = Instance.new("Decal")
+	d.Texture = BULLSEYE_ID
+	d.Face = face
+	d.Parent = part
 end
 
 -- a static target board on a stand; tagged so combat counts a hit. Faces south (the shooter).
@@ -145,8 +127,15 @@ local rack = Instance.new("Folder")
 rack.Name = "WeaponRack"
 rack.Parent = R
 -- backing panel + big sign
-local rackPanel = block("RackPanel", Vector3.new(-50.5, 5, 268), Vector3.new(1, 9, 26), STEEL, Enum.Material.DiamondPlate)
-label(rackPanel, Enum.NormalId.Right, "ARMORY", Color3.fromRGB(255, 230, 90)) -- Right (+X) faces the room
+-- plain backing panel the markers mount on; the ARMORY sign sits above so the mounts never cover it
+local rackPanel = block("RackPanel", Vector3.new(-50.5, 4, 268), Vector3.new(1, 8, 26), STEEL, Enum.Material.DiamondPlate)
+local armorySign = block("ArmorySign", Vector3.new(-50.5, 10.5, 268), Vector3.new(1, 4, 11), Color3.fromRGB(40, 43, 48), Enum.Material.SmoothPlastic)
+do
+	local d = Instance.new("Decal")
+	d.Texture = "rbxassetid://89863094908814" -- ARMORY sign
+	d.Face = Enum.NormalId.Right -- Right (+X) faces the room
+	d.Parent = armorySign
+end
 local rackWeapons = { "AssaultMarker", "Scattergun", "ReconMarker", "Mortar" }
 for i, weaponName in ipairs(rackWeapons) do
 	local z = 258 + (i - 1) * 6.5
@@ -176,10 +165,19 @@ for _, x in ipairs({ -20, 1, 23 }) do
 	block("Divider", Vector3.new(x, 2, 312), Vector3.new(0.6, 4, 92), DARK, Enum.Material.Metal)
 end
 
--- north-wall banner per lane (gray-box; art-pass decals later). Front (-Z) faces the room.
-local function laneBanner(x: number, text: string)
-	local b = block("Banner", Vector3.new(x, 15, 357), Vector3.new(18, 5, 0.4), Color3.fromRGB(40, 43, 48), Enum.Material.SmoothPlastic)
-	label(b, Enum.NormalId.Front, text, Color3.fromRGB(120, 210, 255))
+-- north-wall banner per lane. Front (-Z) faces the room. With an asset id it shows the real
+-- banner decal; without one it falls back to the gray-box text placeholder.
+local function laneBanner(x: number, text: string, assetId: number?)
+	-- ~16:9 board so the banner art is not squished
+	local b = block("Banner", Vector3.new(x, 11, 357), Vector3.new(16, 9, 0.4), Color3.fromRGB(40, 43, 48), Enum.Material.SmoothPlastic)
+	if assetId then
+		local d = Instance.new("Decal")
+		d.Texture = "rbxassetid://" .. assetId
+		d.Face = Enum.NormalId.Front
+		d.Parent = b
+	else
+		label(b, Enum.NormalId.Front, text, Color3.fromRGB(120, 210, 255))
+	end
 end
 
 -- small distance marker post in front of each lane's targets
@@ -189,25 +187,25 @@ local function distanceMarker(x: number, z: number, text: string)
 end
 
 -- Lane A: CQB / Scattergun (close, three boards)
-laneBanner(-30, "CQB\nSCATTERGUN")
+laneBanner(-30, "CQB\nSCATTERGUN", 81911169212899)
 distanceMarker(-30, 278, "~15m")
 target("CqbTargetL", Vector3.new(-38, 4.5, 290), Vector2.new(6, 6), T)
 target("CqbTargetM", Vector3.new(-30, 4.5, 292), Vector2.new(6, 6), T)
 target("CqbTargetR", Vector3.new(-22, 4.5, 290), Vector2.new(6, 6), T)
 
 -- Lane B: Standard / Assault Marker (mid, two boards)
-laneBanner(-10, "STANDARD\nASSAULT")
+laneBanner(-10, "STANDARD\nASSAULT", 91622776109553)
 distanceMarker(-10, 286, "~30m")
 target("StdTargetNear", Vector3.new(-13, 4.5, 304), Vector2.new(6, 6), T)
 target("StdTargetFar", Vector3.new(-7, 4.5, 320), Vector2.new(5, 5), T)
 
 -- Lane C: Long Range / Recon (far, small board)
-laneBanner(12, "LONG RANGE\nRECON")
+laneBanner(12, "LONG RANGE\nRECON", 77383142939055)
 distanceMarker(12, 300, "~65m")
 target("LongTarget", Vector3.new(12, 5, 350), Vector2.new(4.5, 4.5), T)
 
 -- Lane D: Mortar Pit (lob over a sandbag wall onto ground pads)
-laneBanner(34, "MORTAR PIT\nLOB IT")
+laneBanner(34, "MORTAR PIT\nLOB IT", 108744903192699)
 local sandbag = block("SandbagWall", Vector3.new(34, 2.5, 300), Vector3.new(20, 5, 2), OLIVE, Enum.Material.Sand, T)
 label(sandbag, Enum.NormalId.Front, "LOB OVER", Color3.fromRGB(245, 245, 235))
 pad("MortarPadL", Vector3.new(28, 0.25, 322), 7, T)
@@ -244,9 +242,14 @@ end
 -- ===== signage =====
 local sign = block("Sign", Vector3.new(0, 17, 357), Vector3.new(30, 4, 0.4), DARK, Enum.Material.SmoothPlastic)
 label(sign, Enum.NormalId.Front, "PRACTICE RANGE", Color3.fromRGB(255, 230, 90))
--- briefing board on the east wall (art-pass decal: range rules)
-local briefing = block("BriefingBoard", Vector3.new(51, 8, 270), Vector3.new(0.4, 8, 14), Color3.fromRGB(40, 43, 48), Enum.Material.SmoothPlastic)
-label(briefing, Enum.NormalId.Left, "RANGE\nRULES", Color3.fromRGB(210, 220, 235)) -- Left (-X) faces the room
+-- briefing board on the east wall: the RANGE RULES poster (portrait), facing the room
+local briefing = block("BriefingBoard", Vector3.new(51, 7.5, 270), Vector3.new(0.4, 13, 9), Color3.fromRGB(28, 30, 34), Enum.Material.SmoothPlastic)
+do
+	local d = Instance.new("Decal")
+	d.Texture = "rbxassetid://137260448358919"
+	d.Face = Enum.NormalId.Left -- Left (-X) faces the room
+	d.Parent = briefing
+end
 
 -- ===== light strips =====
 for _, z in ipairs({ 270, 300, 330 }) do
