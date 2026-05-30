@@ -23,6 +23,21 @@ local GUN = Color3.fromRGB(54, 58, 64)
 local BLACK = Color3.fromRGB(24, 24, 28)
 local DARK = Color3.fromRGB(40, 42, 46)
 
+-- painted camo skin wrapped onto the boxy metal parts
+local SKIN = "rbxassetid://113665300523857"
+local FACES =
+	{ Enum.NormalId.Top, Enum.NormalId.Bottom, Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }
+local function wrap(part: BasePart, studs: number)
+	for _, face in FACES do
+		local t = Instance.new("Texture")
+		t.Texture = SKIN
+		t.Face = face
+		t.StudsPerTileU = studs
+		t.StudsPerTileV = studs
+		t.Parent = part
+	end
+end
+
 -- cosmetic parts, offset relative to the Handle (body) center. accent=true means it glows
 -- in the team color.
 local PARTS = {
@@ -31,10 +46,10 @@ local PARTS = {
 	{ name = "Hopper", size = V(1.35, 1.35, 1.35), cf = CFrame.new(0, 0.95, 0.5), accent = true, shape = BALL },
 	{ name = "Barrel", size = V(4.0, 0.42, 0.42), cf = CFrame.new(0, 0.25, -2.9) * yaw(90), color = BLACK, shape = CYL },
 	{ name = "Muzzle", size = V(0.5, 0.6, 0.6), cf = CFrame.new(0, 0.25, -4.8) * yaw(90), accent = true, shape = CYL },
-	{ name = "Grip", size = V(0.6, 1.6, 0.85), cf = CFrame.new(0, -1.15, 0.7) * CFrame.Angles(math.rad(-14), 0, 0), color = BLACK },
+	{ name = "Grip", size = V(0.6, 1.6, 0.85), cf = CFrame.new(0, -1.15, 0.7) * CFrame.Angles(math.rad(-14), 0, 0), color = BLACK, skin = true },
 	{ name = "TriggerGuard", size = V(0.22, 0.7, 1.0), cf = CFrame.new(0, -0.5, 0.05), color = DARK },
 	{ name = "StockArm", size = V(0.45, 0.45, 1.3), cf = CFrame.new(0, -0.05, 1.9), color = DARK },
-	{ name = "StockPad", size = V(0.85, 1.3, 0.5), cf = CFrame.new(0, -0.05, 2.65), color = GUN },
+	{ name = "StockPad", size = V(0.85, 1.3, 0.5), cf = CFrame.new(0, -0.05, 2.65), color = GUN, skin = true },
 	{ name = "Tank", size = V(2.2, 0.72, 0.72), cf = CFrame.new(0, -0.75, 1.5) * yaw(90), color = DARK, shape = CYL },
 	{ name = "Gauge", size = V(0.3, 0.45, 0.45), cf = CFrame.new(0, -0.45, 2.55) * yaw(90), accent = true, shape = CYL },
 }
@@ -86,4 +101,11 @@ for _, spec in PARTS do
 	weld.Part1 = p
 	weld.C0 = spec.cf
 	weld.Parent = handle
+
+	if spec.skin then
+		wrap(p, 2)
+	end
 end
+
+-- skin the body (Handle) too
+wrap(handle, 2.5)
