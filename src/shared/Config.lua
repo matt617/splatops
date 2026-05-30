@@ -70,7 +70,14 @@ Config.Weapons = {
 		ProjectileSpeed = 90, -- studs per second; with gravity below, effective range ~90 studs
 		ProjectileGravity = 90, -- studs/s^2 downward; gives the paintball a visible arc
 		ProjectileSize = 0.8, -- ball diameter in studs
-		SpreadDegrees = 0, -- 0 = the ball lands where you tap (kid friendly); raise to scatter
+		-- accuracy: tight on a single shot, blooms while you spray, recovers when you pause
+		SpreadDegrees = 0.5, -- base spread per shot (small so single taps stay accurate)
+		SpreadMaxDegrees = 6, -- worst-case spread while spraying
+		SpreadPerShot = 1.7, -- spread added each shot (must out-pace recovery to bloom while spraying)
+		SpreadRecoverPerSec = 6, -- spread recovered per second of not firing
+		-- recoil: a camera kick per shot that eases back
+		RecoilKickDegrees = 1.6, -- kick per shot
+		RecoilRecoverPerSec = 10, -- how fast the kick eases back
 	},
 	ReconMarker = {
 		DisplayName = "Recon Marker",

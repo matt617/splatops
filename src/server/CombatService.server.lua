@@ -36,3 +36,7 @@ end)
 Remotes.ReloadWeapon.OnServerEvent:Connect(function(player)
 	Combat.reload(player)
 end)
+
+Players.PlayerRemoving:Connect(function(player)
+	Combat.clearPlayer(player)
+end)

@@ -6,6 +6,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Debris = game:GetService("Debris")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -71,6 +73,47 @@ tool.Unequipped:Connect(function()
 	hud.Enabled = false
 end)
 
+-- recoil: a transient camera kick applied after the camera updates each frame, so it eases
+-- back and never permanently changes where the cursor aims.
+local recoil = 0
+local MAX_RECOIL = math.rad(14)
+
+RunService:BindToRenderStep("MarkerRecoil", Enum.RenderPriority.Camera.Value + 1, function(dt)
+	if recoil <= 0 then
+		return
+	end
+	local camera = workspace.CurrentCamera
+	if camera then
+		camera.CFrame = camera.CFrame * CFrame.Angles(recoil, 0, 0)
+	end
+	recoil = recoil * math.max(0, 1 - dt * MARKER.RecoilRecoverPerSec)
+	if recoil < 0.0008 then
+		recoil = 0
+	end
+end)
+
+-- quick muzzle flash at the barrel tip. Local feedback for the shooter.
+local function muzzleFlash()
+	local character = player.Character
+	local gun = character and character:FindFirstChild("AssaultMarker")
+	local barrel = gun and gun:FindFirstChild("Barrel")
+	if not barrel or not barrel:IsA("BasePart") then
+		return
+	end
+	local flash = Instance.new("Part")
+	flash.Shape = Enum.PartType.Ball
+	flash.Size = Vector3.new(0.85, 0.85, 0.85)
+	flash.Color = Color3.fromRGB(255, 232, 150)
+	flash.Material = Enum.Material.Neon
+	flash.Anchored = true
+	flash.CanCollide = false
+	flash.CanQuery = false
+	flash.CastShadow = false
+	flash.CFrame = barrel.CFrame * CFrame.new(barrel.Size.X / 2 + 0.3, 0, 0)
+	flash.Parent = workspace
+	Debris:AddItem(flash, 0.05)
+end
+
 -- client-side cadence gate, just for feel. the server enforces the real rate and ammo.
 local lastFire = 0
 
@@ -87,6 +130,10 @@ tool.Activated:Connect(function()
 	end
 	local ray = camera:ScreenPointToRay(mouse.X, mouse.Y)
 	Remotes.FireWeapon:FireServer(ray.Origin, ray.Direction)
+
+	-- local feel: kick the camera and flash the muzzle
+	recoil = math.min(MAX_RECOIL, recoil + math.rad(MARKER.RecoilKickDegrees))
+	muzzleFlash()
 end)
 
 -- manual reload on PC; touch devices auto-reload when the marker runs dry (server-side)

@@ -24,6 +24,9 @@ local MAX_HITS = Config.Player.MaxHits
 -- per-player fire cadence, enforced on the server so a fast client cannot out-shoot the marker
 local lastFireByPlayer: { [Player]: number } = {}
 
+-- per-player accuracy heat: grows with each shot, decays over time, blooms the spread
+local spreadHeat: { [Player]: { value: number, last: number } } = {}
+
 -- The client sends its camera position as the muzzle origin. In third person the
 -- camera sits well behind the character, so we trust that origin for aim only when it
 -- is within this range of the shooter. A farther (or spoofed) origin falls back to
@@ -108,6 +111,31 @@ local function applySpread(dir: Vector3, degrees: number?): Vector3
 	local pitch = (math.random() - 0.5) * rad
 	local yaw = (math.random() - 0.5) * rad
 	return (CFrame.lookAt(Vector3.zero, dir) * CFrame.Angles(pitch, yaw, 0)).LookVector
+end
+
+-- Current spread for this shot: base plus accumulated heat. Each call also adds heat for the
+-- next shot, so a paced shooter stays accurate while a sprayer scatters. nil = test harness.
+local function currentSpread(player: Player?): number
+	if not player then
+		return MARKER.SpreadDegrees
+	end
+	local now = os.clock()
+	local heat = spreadHeat[player]
+	if not heat then
+		heat = { value = 0, last = now }
+		spreadHeat[player] = heat
+	end
+	heat.value = math.max(0, heat.value - (now - heat.last) * MARKER.SpreadRecoverPerSec)
+	local spread = MARKER.SpreadDegrees + heat.value
+	heat.value = math.min(MARKER.SpreadMaxDegrees - MARKER.SpreadDegrees, heat.value + MARKER.SpreadPerShot)
+	heat.last = now
+	return spread
+end
+
+-- Drop per-player state when they leave so the tables do not grow forever.
+function Combat.clearPlayer(player: Player)
+	lastFireByPlayer[player] = nil
+	spreadHeat[player] = nil
 end
 
 -- Solve a launch velocity (fixed speed) so an arced ball passes through the target point.
@@ -258,7 +286,7 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 	-- arc the ball so it lobs onto the point you aimed at, instead of dropping short
 	local launchVel = solveLaunch(muzzle, targetPoint, MARKER.ProjectileSpeed, MARKER.ProjectileGravity)
 	local baseDir = if launchVel then launchVel.Unit else (targetPoint - muzzle).Unit
-	local launchDir = applySpread(baseDir, MARKER.SpreadDegrees)
+	local launchDir = applySpread(baseDir, currentSpread(shooterPlayer))
 	local paintColor = teamPaintColor(shooterPlayer)
 
 	-- the paintball owns hit detection: it flies and resolves on impact
