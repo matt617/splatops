@@ -1,8 +1,8 @@
 --!strict
--- Server-authoritative combat core for the Assault Marker.
--- This module owns hit detection, damage, tag-out, and respawn. Nothing here trusts
--- the client beyond where it claims to be aiming, and even that gets sanity checked.
--- Kept as a module so the test harness can drive it directly with execute_luau.
+-- Server-authoritative combat core. Owns hit detection, damage, tag-out, respawn, ammo, and
+-- firing for ALL markers: it reads the stats of whatever weapon the player is holding from
+-- Config.Weapons (keyed by the Tool's name). Nothing trusts the client beyond aim, and even
+-- that is sanity checked. Kept as a module so the test harness can drive it.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -19,20 +19,12 @@ local Economy = require(ServerScriptService:WaitForChild("Economy"))
 
 local Combat = {}
 
-local MARKER = Config.Weapons.AssaultMarker
+local DEFAULT_WEAPON = Config.Weapons.AssaultMarker -- used by the nil-player test harness
 local MAX_HITS = Config.Player.MaxHits
 
--- per-player fire cadence, enforced on the server so a fast client cannot out-shoot the marker
 local lastFireByPlayer: { [Player]: number } = {}
-
--- per-player accuracy heat: grows with each shot, decays over time, blooms the spread
 local spreadHeat: { [Player]: { value: number, last: number } } = {}
 
--- The client sends its camera position as the muzzle origin. In third person the
--- camera sits well behind the character, so we trust that origin for aim only when it
--- is within this range of the shooter. A farther (or spoofed) origin falls back to
--- firing from the character, which still works and cannot shoot through walls from
--- somewhere else.
 local ORIGIN_TOLERANCE_STUDS = 24
 
 local function teamPaintColor(player: Player?): Color3
@@ -43,7 +35,6 @@ local function teamPaintColor(player: Player?): Color3
 			end
 		end
 	end
-	-- unteamed shooter (e.g. the test harness): still drop a visible splat
 	return Config.Teams.Red.PaintColor
 end
 
@@ -59,34 +50,40 @@ end
 
 local function getEquippedTool(player: Player): Tool?
 	local character = player.Character
-	if not character then
-		return nil
-	end
-	return character:FindFirstChildOfClass("Tool")
+	return character and character:FindFirstChildOfClass("Tool") or nil
 end
 
--- Refill the equipped marker after a delay. Safe to call any time; it no-ops if the
--- marker is already full or already reloading. Ammo lives on the Tool so it replicates
--- to the owner's HUD for free.
-function Combat.reload(player: Player)
+-- The weapon config for whatever the player holds (or the default for the test harness),
+-- plus the tool instance. Returns nil config if they hold no configured weapon.
+local function weaponFor(player: Player?): (any, Tool?)
+	if not player then
+		return DEFAULT_WEAPON, nil
+	end
 	local tool = getEquippedTool(player)
-	if not tool or tool:GetAttribute("Reloading") == true then
+	if not tool then
+		return nil, nil
+	end
+	return Config.Weapons[tool.Name], tool
+end
+
+function Combat.reload(player: Player)
+	local weapon, tool = weaponFor(player)
+	if not weapon or not tool or tool:GetAttribute("Reloading") == true then
 		return
 	end
-	local ammo = (tool:GetAttribute("Ammo") :: number?) or MARKER.AmmoPerMag
-	if ammo >= MARKER.AmmoPerMag then
+	local ammo = (tool:GetAttribute("Ammo") :: number?) or weapon.AmmoPerMag
+	if ammo >= weapon.AmmoPerMag then
 		return
 	end
 	tool:SetAttribute("Reloading", true)
-	task.delay(MARKER.ReloadSeconds, function()
+	task.delay(weapon.ReloadSeconds, function()
 		if tool.Parent then
-			tool:SetAttribute("Ammo", MARKER.AmmoPerMag)
+			tool:SetAttribute("Ammo", weapon.AmmoPerMag)
 		end
 		tool:SetAttribute("Reloading", false)
 	end)
 end
 
--- where the paintball leaves the marker: the held Handle if we can find it, else the chest
 local function getMuzzle(shooterPlayer: Player?, fallback: Vector3): Vector3
 	if shooterPlayer and shooterPlayer.Character then
 		local character = shooterPlayer.Character
@@ -103,7 +100,6 @@ local function getMuzzle(shooterPlayer: Player?, fallback: Vector3): Vector3
 	return fallback
 end
 
--- nudge the aim by a small random cone so rapid fire is not perfectly accurate
 local function applySpread(dir: Vector3, degrees: number?): Vector3
 	if not degrees or degrees <= 0 then
 		return dir
@@ -114,11 +110,12 @@ local function applySpread(dir: Vector3, degrees: number?): Vector3
 	return (CFrame.lookAt(Vector3.zero, dir) * CFrame.Angles(pitch, yaw, 0)).LookVector
 end
 
--- Current spread for this shot: base plus accumulated heat. Each call also adds heat for the
--- next shot, so a paced shooter stays accurate while a sprayer scatters. nil = test harness.
-local function currentSpread(player: Player?): number
-	if not player then
-		return MARKER.SpreadDegrees
+-- Bloom spread for single-shot weapons: base plus accumulated heat that recovers over time.
+-- Weapons without the bloom fields just use their flat SpreadDegrees.
+local function currentSpread(player: Player?, weapon: any): number
+	local base = weapon.SpreadDegrees or 0
+	if not player or not weapon.SpreadPerShot then
+		return base
 	end
 	local now = os.clock()
 	local heat = spreadHeat[player]
@@ -126,22 +123,18 @@ local function currentSpread(player: Player?): number
 		heat = { value = 0, last = now }
 		spreadHeat[player] = heat
 	end
-	heat.value = math.max(0, heat.value - (now - heat.last) * MARKER.SpreadRecoverPerSec)
-	local spread = MARKER.SpreadDegrees + heat.value
-	heat.value = math.min(MARKER.SpreadMaxDegrees - MARKER.SpreadDegrees, heat.value + MARKER.SpreadPerShot)
+	heat.value = math.max(0, heat.value - (now - heat.last) * (weapon.SpreadRecoverPerSec or 0))
+	local spread = base + heat.value
+	heat.value = math.min((weapon.SpreadMaxDegrees or base) - base, heat.value + weapon.SpreadPerShot)
 	heat.last = now
 	return spread
 end
 
--- Drop per-player state when they leave so the tables do not grow forever.
 function Combat.clearPlayer(player: Player)
 	lastFireByPlayer[player] = nil
 	spreadHeat[player] = nil
 end
 
--- Solve a launch velocity (fixed speed) so an arced ball passes through the target point.
--- Returns nil if the target is out of range for that speed. Picks the flatter of the two
--- arcs so a tap reads as "shoot at that spot," just with a visible lob.
 local function solveLaunch(p0: Vector3, target: Vector3, speed: number, gravity: number): Vector3?
 	if gravity <= 0 then
 		return (target - p0).Unit * speed
@@ -165,7 +158,6 @@ local function solveLaunch(p0: Vector3, target: Vector3, speed: number, gravity:
 	return flat.Unit * (speed * math.cos(theta)) + Vector3.new(0, speed * math.sin(theta), 0)
 end
 
--- Initialize a character for combat. Safe to call on every spawn.
 function Combat.setupCharacter(character: Model)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then
@@ -177,17 +169,13 @@ function Combat.setupCharacter(character: Model)
 	humanoid.JumpPower = Config.Player.JumpPower
 end
 
--- Freeze the target and start its respawn. Players get the ELIMINATED stamp and reload
--- at their base spawn. Dummies just drop so the tag-out reads clearly in testing.
 function Combat.tagOut(character: Model, victimPlayer: Player?)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then
 		return
 	end
 	humanoid:SetAttribute("TaggedOut", true)
-
 	if victimPlayer then
-		-- freeze without triggering the Roblox death screen, then respawn on our own clock
 		humanoid.WalkSpeed = 0
 		humanoid.JumpPower = 0
 		humanoid.PlatformStand = true
@@ -202,39 +190,32 @@ function Combat.tagOut(character: Model, victimPlayer: Player?)
 	end
 end
 
--- Apply a single marker hit. Returns true if the hit landed (passed team and state checks).
+-- Apply a marker hit for `damage` points. Returns true if it landed.
 function Combat.applyHit(
 	targetCharacter: Model,
 	hitPosition: Vector3,
 	hitNormal: Vector3,
 	paintColor: Color3,
-	shooterPlayer: Player?
+	shooterPlayer: Player?,
+	damage: number?
 ): boolean
 	local humanoid = targetCharacter:FindFirstChildOfClass("Humanoid")
-	if not humanoid then
+	if not humanoid or humanoid:GetAttribute("TaggedOut") == true then
 		return false
 	end
-	if humanoid:GetAttribute("TaggedOut") == true then
-		return false
-	end
-
 	local victimPlayer = Players:GetPlayerFromCharacter(targetCharacter)
 	if not Config.Player.FriendlyFire and sameTeam(shooterPlayer, victimPlayer) then
 		return false
 	end
 
-	-- world splat for everyone, screen flash just for the player who got tagged
 	PaintSplat.spawn(hitPosition, hitNormal, paintColor)
 	if victimPlayer then
 		Remotes.PaintHitVFX:FireClient(victimPlayer, paintColor)
 	end
-
-	-- remember who landed the hit (used for tag credit and the practice counter)
 	humanoid:SetAttribute("LastHitBy", if shooterPlayer then shooterPlayer.UserId else 0)
 
-	local hits = ((humanoid:GetAttribute("Hits") :: number?) or 0) + MARKER.Damage
+	local hits = ((humanoid:GetAttribute("Hits") :: number?) or 0) + (damage or 1)
 	humanoid:SetAttribute("Hits", hits)
-
 	if hits >= MAX_HITS then
 		if shooterPlayer then
 			Economy.award(shooterPlayer, Config.Economy.CoinsPerTag)
@@ -244,27 +225,51 @@ function Combat.applyHit(
 	return true
 end
 
+-- Area damage around an impact point (used by the mortar's splash).
+local function applySplash(center: Vector3, radius: number, damage: number, paintColor: Color3, shooterPlayer: Player?)
+	for _, p in Players:GetPlayers() do
+		local character = p.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") and (root.Position - center).Magnitude <= radius then
+			Combat.applyHit(character, root.Position, Vector3.yAxis, paintColor, shooterPlayer, damage)
+		end
+	end
+	local arena = Workspace:FindFirstChild("Arena")
+	if arena then
+		for _, baseName in { "RedBase", "BlueBase" } do
+			local base = arena:FindFirstChild(baseName)
+			local tower = base and base:FindFirstChild("CommsTower")
+			if tower and tower:IsA("BasePart") and (tower.Position - center).Magnitude <= radius + 6 then
+				Tower.applyDamage(tower, center, Vector3.yAxis, paintColor, shooterPlayer)
+			end
+		end
+	end
+end
+
 -- Entry point for a fired shot. shooterPlayer is nil when the test harness drives this.
 function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: Vector3)
 	if Tower.isMatchOver() then
 		return
 	end
+	local weapon, tool = weaponFor(shooterPlayer)
+	if shooterPlayer and not weapon then
+		return -- not holding a configured weapon
+	end
+	weapon = weapon or DEFAULT_WEAPON
+
 	local rayOrigin = origin
 	if shooterPlayer then
 		local now = os.clock()
-		local last = lastFireByPlayer[shooterPlayer] or 0
-		if now - last < MARKER.FireRateSeconds then
+		if now - (lastFireByPlayer[shooterPlayer] or 0) < weapon.FireRateSeconds then
 			return
 		end
 		lastFireByPlayer[shooterPlayer] = now
 
-		-- ammo: an empty marker does not fire, it auto-reloads instead
-		local tool = getEquippedTool(shooterPlayer)
 		if tool then
 			if tool:GetAttribute("Reloading") == true then
 				return
 			end
-			local ammo = (tool:GetAttribute("Ammo") :: number?) or MARKER.AmmoPerMag
+			local ammo = (tool:GetAttribute("Ammo") :: number?) or weapon.AmmoPerMag
 			if ammo <= 0 then
 				Combat.reload(shooterPlayer)
 				return
@@ -272,7 +277,6 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 			tool:SetAttribute("Ammo", ammo - 1)
 		end
 
-		-- trust the camera origin only when it sits near the shooter, else fire from them
 		local character = shooterPlayer.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart")
 		if root and root:IsA("BasePart") and (root.Position - origin).Magnitude > ORIGIN_TOLERANCE_STUDS then
@@ -280,48 +284,60 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 		end
 	end
 
-	-- find what the crosshair is pointing at, so the ball converges there from the muzzle
+	-- weapon stats with safe defaults for guns that omit projectile fields
+	local speed = weapon.ProjectileSpeed or 130
+	local gravity = weapon.ProjectileGravity or 0
+	local size = weapon.ProjectileSize or 0.8
+	local range = weapon.MaxRangeStuds
+	local damage = weapon.Damage or 1
+	local paintColor = teamPaintColor(shooterPlayer)
+
 	local aimParams = RaycastParams.new()
 	aimParams.FilterType = Enum.RaycastFilterType.Exclude
 	if shooterPlayer and shooterPlayer.Character then
 		aimParams.FilterDescendantsInstances = { shooterPlayer.Character }
 	end
-	local aimHit = Workspace:Raycast(rayOrigin, direction.Unit * MARKER.MaxRangeStuds, aimParams)
-	local targetPoint = if aimHit then aimHit.Position else rayOrigin + direction.Unit * MARKER.MaxRangeStuds
+	local aimHit = Workspace:Raycast(rayOrigin, direction.Unit * range, aimParams)
+	local targetPoint = if aimHit then aimHit.Position else rayOrigin + direction.Unit * range
 
 	local muzzle = getMuzzle(shooterPlayer, rayOrigin)
-	-- arc the ball so it lobs onto the point you aimed at, instead of dropping short
-	local launchVel = solveLaunch(muzzle, targetPoint, MARKER.ProjectileSpeed, MARKER.ProjectileGravity)
+	local launchVel = solveLaunch(muzzle, targetPoint, speed, gravity)
 	local baseDir = if launchVel then launchVel.Unit else (targetPoint - muzzle).Unit
-	local launchDir = applySpread(baseDir, currentSpread(shooterPlayer))
-	local paintColor = teamPaintColor(shooterPlayer)
 
-	-- the paintball owns hit detection: it flies and resolves on impact
-	Projectile.launch({
-		origin = muzzle,
-		direction = launchDir,
-		speed = MARKER.ProjectileSpeed,
-		gravity = MARKER.ProjectileGravity,
-		range = MARKER.MaxRangeStuds,
-		color = paintColor,
-		size = MARKER.ProjectileSize,
-		ignore = if shooterPlayer then shooterPlayer.Character else nil,
-		onHit = function(result: RaycastResult)
-			-- a comms tower hit damages the objective, not a player
-			local towerPart = Tower.resolveTowerPart(result.Instance)
-			if towerPart then
-				Tower.applyDamage(towerPart, result.Position, result.Normal, paintColor, shooterPlayer)
-				return
-			end
+	local function onHit(result: RaycastResult)
+		local towerPart = Tower.resolveTowerPart(result.Instance)
+		if towerPart then
+			Tower.applyDamage(towerPart, result.Position, result.Normal, paintColor, shooterPlayer)
+		else
 			local hitModel = result.Instance:FindFirstAncestorOfClass("Model")
 			if hitModel and hitModel:FindFirstChildOfClass("Humanoid") then
-				Combat.applyHit(hitModel, result.Position, result.Normal, paintColor, shooterPlayer)
-				return
+				Combat.applyHit(hitModel, result.Position, result.Normal, paintColor, shooterPlayer, damage)
+			else
+				PaintSplat.spawn(result.Position, result.Normal, paintColor)
 			end
-			-- otherwise just paint the surface
-			PaintSplat.spawn(result.Position, result.Normal, paintColor)
-		end,
-	})
+		end
+		if weapon.SplashRadiusStuds and weapon.SplashRadiusStuds > 0 then
+			applySplash(result.Position, weapon.SplashRadiusStuds, weapon.SplashDamage or 1, paintColor, shooterPlayer)
+		end
+	end
+
+	-- pellets > 1 (e.g. Scattergun) spread within the weapon's cone; single shots use bloom
+	local pellets = weapon.PelletsPerShot or 1
+	local coneDeg = if pellets > 1 then (weapon.SpreadDegrees or 0) else currentSpread(shooterPlayer, weapon)
+	local ignore = if shooterPlayer then shooterPlayer.Character else nil
+	for _ = 1, pellets do
+		Projectile.launch({
+			origin = muzzle,
+			direction = applySpread(baseDir, coneDeg),
+			speed = speed,
+			gravity = gravity,
+			range = range,
+			color = paintColor,
+			size = size,
+			ignore = ignore,
+			onHit = onHit,
+		})
+	end
 end
 
 return Combat
