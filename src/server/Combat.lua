@@ -19,6 +19,10 @@ local Economy = require(ServerScriptService:WaitForChild("Economy"))
 
 local Combat = {}
 
+-- fired when a humanoid is tagged out: (shooter?, targetModel, victimPlayer?). Used by the
+-- practice counter now and the match scoreboard later.
+Combat.Tagged = Instance.new("BindableEvent")
+
 local DEFAULT_WEAPON = Config.Weapons.AssaultMarker -- used by the nil-player test harness
 local MAX_HITS = Config.Player.MaxHits
 
@@ -220,6 +224,7 @@ function Combat.applyHit(
 		if shooterPlayer then
 			Economy.award(shooterPlayer, Config.Economy.CoinsPerTag)
 		end
+		Combat.Tagged:Fire(shooterPlayer, targetCharacter, victimPlayer)
 		Combat.tagOut(targetCharacter, victimPlayer)
 	end
 	return true
