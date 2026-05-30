@@ -55,7 +55,7 @@ counter.Parent = gui
 
 local steps = {
 	{ text = "Move around to get a feel for it!", done = function() return moved end },
-	{ text = "Aim at a target and splat it! (3 hits)", done = function() return splatted >= 1 end },
+	{ text = "Aim at a target and splat it!", done = function() return splatted >= 1 end },
 	{ text = "Out of paint? Reload your marker!", done = function() return reloaded end },
 	{ text = "Splat " .. GOAL .. " targets to finish!", done = function() return splatted >= GOAL end },
 }
@@ -70,10 +70,10 @@ local function refresh()
 	end
 	if stepIndex > #steps then
 		finished = true
-		prompt.Text = "You're ready, paintballer!"
+		prompt.Text = "Nice! Grab any marker off the rack and try the lanes."
 		prompt.TextColor3 = Color3.fromRGB(120, 255, 150)
 		counter.Text = ""
-		task.delay(4, function()
+		task.delay(5, function()
 			gui.Enabled = false
 		end)
 		return

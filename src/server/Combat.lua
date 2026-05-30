@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local CollectionService = game:GetService("CollectionService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -20,8 +21,12 @@ local Economy = require(ServerScriptService:WaitForChild("Economy"))
 local Combat = {}
 
 -- fired when a humanoid is tagged out: (shooter?, targetModel, victimPlayer?). Used by the
--- practice counter now and the match scoreboard later.
+-- match scoreboard later.
 Combat.Tagged = Instance.new("BindableEvent")
+
+-- fired when a shot lands on a lobby practice target (a part tagged "PracticeTarget"):
+-- (shooter?, targetPart, hitPosition). The practice range listens to drive the counter.
+Combat.PracticeTargetHit = Instance.new("BindableEvent")
 
 local DEFAULT_WEAPON = Config.Weapons.AssaultMarker -- used by the nil-player test harness
 local MAX_HITS = Config.Player.MaxHits
@@ -319,6 +324,10 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 				Combat.applyHit(hitModel, result.Position, result.Normal, paintColor, shooterPlayer, damage)
 			else
 				PaintSplat.spawn(result.Position, result.Normal, paintColor)
+				-- lobby practice targets: no health, just a splat plus a counter ping
+				if CollectionService:HasTag(result.Instance, "PracticeTarget") then
+					Combat.PracticeTargetHit:Fire(shooterPlayer, result.Instance, result.Position)
+				end
 			end
 		end
 		if weapon.SplashRadiusStuds and weapon.SplashRadiusStuds > 0 then

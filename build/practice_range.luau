@@ -1,12 +1,16 @@
 --!strict
--- Lobby practice range: a warm-up room north of the arena where players learn the
--- tap-to-shoot before a match. Neutral lobby spawn, five target stands (the server
--- spawns a respawning dummy on each), cover, and a sign. Also turns off team
--- auto-assign so players land here neutral instead of on an arena team spawn.
+-- Lobby practice range: a warm-up hall north of the arena where players learn the controls
+-- and test every marker before a match. Four distance lanes, one per weapon style:
+--   CQB (Scattergun), Standard (Assault Marker), Long Range (Recon), Mortar Pit (lob).
+-- Targets are static themed boards tagged "PracticeTarget"; the server (PracticeRange.server)
+-- counts a splat the moment a shot lands on one. A wall rack hands out the markers to test
+-- (WeaponRackService). Neutral lobby spawn, a Start Match pad, cover, and signage.
+-- Gray-box now; SurfaceGui placeholders mark where the uploaded decals go in the art pass.
 -- Run in Studio after the arena exists; re-runnable.
 
 local Workspace = game:GetService("Workspace")
 local Teams = game:GetService("Teams")
+local CollectionService = game:GetService("CollectionService")
 
 local old = Workspace:FindFirstChild("PracticeRange")
 if old then
@@ -18,7 +22,11 @@ R.Parent = Workspace
 
 local GRAY = Color3.fromRGB(120, 124, 130)
 local DARK = Color3.fromRGB(84, 88, 94)
-local function block(name: string, pos: Vector3, size: Vector3, color: Color3?, mat: Enum.Material?): Part
+local STEEL = Color3.fromRGB(70, 74, 80)
+local OLIVE = Color3.fromRGB(96, 104, 76)
+local WOOD = Color3.fromRGB(116, 92, 60)
+
+local function block(name: string, pos: Vector3, size: Vector3, color: Color3?, mat: Enum.Material?, parent: Instance?): Part
 	local p = Instance.new("Part")
 	p.Name = name
 	p.Anchored = true
@@ -28,85 +36,216 @@ local function block(name: string, pos: Vector3, size: Vector3, color: Color3?, 
 	p.Material = mat or Enum.Material.Concrete
 	p.TopSurface = Enum.SurfaceType.Smooth
 	p.BottomSurface = Enum.SurfaceType.Smooth
-	p.Parent = R
+	p.Parent = parent or R
 	return p
 end
 
-block("Floor", Vector3.new(0, -0.5, 280), Vector3.new(80, 1, 60), DARK)
-block("WallN", Vector3.new(0, 8, 310), Vector3.new(80, 16, 2), GRAY)
-block("WallS", Vector3.new(0, 8, 250), Vector3.new(80, 16, 2), GRAY)
-block("WallW", Vector3.new(-40, 8, 280), Vector3.new(2, 16, 60), GRAY)
-block("WallE", Vector3.new(40, 8, 280), Vector3.new(2, 16, 60), GRAY)
+-- a flat text label on one face: the gray-box stand-in for a decal we will upload later
+local function label(part: BasePart, face: Enum.NormalId, text: string, color: Color3?)
+	local sg = Instance.new("SurfaceGui")
+	sg.Face = face
+	sg.Parent = part
+	local t = Instance.new("TextLabel")
+	t.Size = UDim2.fromScale(1, 1)
+	t.BackgroundTransparency = 1
+	t.Text = text
+	t.TextColor3 = color or Color3.fromRGB(255, 230, 90)
+	t.Font = Enum.Font.GothamBlack
+	t.TextScaled = true
+	t.Parent = sg
+end
 
--- neutral lobby spawn: players land here, off any team
+-- a concentric bullseye drawn on one face (gray-box; an art-pass decal replaces it)
+local function bullseye(part: BasePart, face: Enum.NormalId)
+	local sg = Instance.new("SurfaceGui")
+	sg.Name = "Bullseye"
+	sg.Face = face
+	sg.Parent = part
+	local rings = {
+		{ s = 1.00, c = Color3.fromRGB(235, 235, 235) },
+		{ s = 0.78, c = Color3.fromRGB(210, 60, 60) },
+		{ s = 0.54, c = Color3.fromRGB(235, 235, 235) },
+		{ s = 0.30, c = Color3.fromRGB(210, 60, 60) },
+		{ s = 0.12, c = Color3.fromRGB(40, 40, 46) },
+	}
+	for _, ring in ipairs(rings) do
+		local f = Instance.new("Frame")
+		f.AnchorPoint = Vector2.new(0.5, 0.5)
+		f.Position = UDim2.fromScale(0.5, 0.5)
+		f.Size = UDim2.fromScale(ring.s, ring.s)
+		f.BackgroundColor3 = ring.c
+		f.BorderSizePixel = 0
+		f.Parent = sg
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0.5, 0)
+		c.Parent = f
+	end
+end
+
+-- a static target board on a stand; tagged so combat counts a hit. Faces south (the shooter).
+local function target(name: string, pos: Vector3, size: Vector2, parent: Instance)
+	local board = Instance.new("Part")
+	board.Name = name
+	board.Anchored = true
+	board.Size = Vector3.new(size.X, size.Y, 0.5)
+	board.CFrame = CFrame.new(pos)
+	board.Color = Color3.fromRGB(54, 58, 64)
+	board.Material = Enum.Material.SmoothPlastic
+	board.Parent = parent
+	bullseye(board, Enum.NormalId.Front) -- Front (-Z) faces the firing line to the south
+	CollectionService:AddTag(board, "PracticeTarget")
+	-- stand
+	block(name .. "Post", pos - Vector3.new(0, size.Y / 2 + 1.2, 0), Vector3.new(0.6, 2.4, 0.6), STEEL, Enum.Material.Metal, parent)
+end
+
+-- a horizontal target pad (for the lobbed mortar); bullseye on top, tagged.
+local function pad(name: string, pos: Vector3, size: number, parent: Instance)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Anchored = true
+	p.Size = Vector3.new(size, 0.4, size)
+	p.CFrame = CFrame.new(pos)
+	p.Color = Color3.fromRGB(54, 58, 64)
+	p.Material = Enum.Material.SmoothPlastic
+	p.Parent = parent
+	bullseye(p, Enum.NormalId.Top)
+	CollectionService:AddTag(p, "PracticeTarget")
+end
+
+-- ===== shell =====
+block("Floor", Vector3.new(0, -0.5, 300), Vector3.new(104, 1, 116), DARK)
+block("WallN", Vector3.new(0, 10, 358), Vector3.new(104, 20, 2), GRAY)
+block("WallS", Vector3.new(0, 10, 242), Vector3.new(104, 20, 2), GRAY)
+block("WallW", Vector3.new(-52, 10, 300), Vector3.new(2, 20, 116), GRAY)
+block("WallE", Vector3.new(52, 10, 300), Vector3.new(2, 20, 116), GRAY)
+
+-- firing line stripe across the floor
+local stripe = block("FiringLine", Vector3.new(0, 0.05, 266), Vector3.new(88, 0.1, 1.2), Color3.fromRGB(255, 210, 70), Enum.Material.Neon)
+stripe.CanCollide = false
+
+-- ===== neutral lobby spawn (players land here, off any team), facing the lanes =====
 local sp = Instance.new("SpawnLocation")
 sp.Name = "LobbySpawn"
 sp.Anchored = true
 sp.Size = Vector3.new(10, 1, 10)
-sp.CFrame = CFrame.new(0, 0.5, 258)
+sp.CFrame = CFrame.new(0, 0.5, 252) * CFrame.Angles(0, math.pi, 0) -- look north toward the lanes
 sp.Color = Color3.fromRGB(80, 170, 90)
 sp.Material = Enum.Material.SmoothPlastic
 sp.Neutral = true
 sp.Duration = 0
 sp.Parent = R
 
--- target stands: the server (PracticeRange.server.lua) spawns a respawning dummy on each
+-- ===== Start Match pad (to the right of spawn) =====
+local startPad = block("StartPad", Vector3.new(20, 0.5, 254), Vector3.new(14, 1, 9), Color3.fromRGB(70, 200, 100), Enum.Material.Neon)
+startPad.CanCollide = true
+label(startPad, Enum.NormalId.Top, "▶  START MATCH", Color3.fromRGB(255, 255, 255))
+
+-- ===== weapon rack (west alcove): grab any marker to test, free, lobby only =====
+local rack = Instance.new("Folder")
+rack.Name = "WeaponRack"
+rack.Parent = R
+-- backing panel + big sign
+local rackPanel = block("RackPanel", Vector3.new(-50.5, 5, 268), Vector3.new(1, 9, 26), STEEL, Enum.Material.DiamondPlate)
+label(rackPanel, Enum.NormalId.Right, "ARMORY", Color3.fromRGB(255, 230, 90)) -- Right (+X) faces the room
+local rackWeapons = { "AssaultMarker", "Scattergun", "ReconMarker", "Mortar" }
+for i, weaponName in ipairs(rackWeapons) do
+	local z = 258 + (i - 1) * 6.5
+	local mount = Instance.new("Part")
+	mount.Name = "Mount_" .. weaponName
+	mount.Anchored = true
+	mount.Size = Vector3.new(0.6, 3.2, 4.4)
+	mount.CFrame = CFrame.new(-49.7, 4.5, z)
+	mount.Color = Color3.fromRGB(40, 43, 48)
+	mount.Material = Enum.Material.Metal
+	mount:SetAttribute("Weapon", weaponName) -- WeaponRackService reads this to wire the prompt
+	mount.Parent = rack
+	label(mount, Enum.NormalId.Right, weaponName, Color3.fromRGB(210, 220, 235))
+end
+-- floor cue pointing players at the rack
+local cue = block("ArmoryCue", Vector3.new(-30, 0.05, 258), Vector3.new(14, 0.1, 4), Color3.fromRGB(196, 158, 70), Enum.Material.Neon)
+cue.CanCollide = false
+label(cue, Enum.NormalId.Top, "◄ ARMORY", Color3.fromRGB(30, 30, 30))
+
+-- ===== lanes =====
 local T = Instance.new("Folder")
 T.Name = "Targets"
 T.Parent = R
-for _, x in ipairs({ -28, -14, 0, 14, 28 }) do
-	local mk = Instance.new("Part")
-	mk.Name = "TargetSpawn"
-	mk.Anchored = true
-	mk.Size = Vector3.new(4, 0.4, 4)
-	mk.CFrame = CFrame.new(x, 0.2, 302)
-	mk.Color = Color3.fromRGB(200, 180, 60)
-	mk.Material = Enum.Material.Neon
-	mk.Transparency = 0.35
-	mk.CanCollide = false
-	mk.Parent = T
+
+-- lane dividers (low, so you can see across)
+for _, x in ipairs({ -20, 1, 23 }) do
+	block("Divider", Vector3.new(x, 2, 312), Vector3.new(0.6, 4, 92), DARK, Enum.Material.Metal)
 end
 
--- cover to duck behind
-block("Cover1", Vector3.new(-12, 2, 278), Vector3.new(5, 4, 5), Color3.fromRGB(116, 92, 60), Enum.Material.WoodPlanks)
-block("Cover2", Vector3.new(12, 2, 283), Vector3.new(5, 4, 5), Color3.fromRGB(116, 92, 60), Enum.Material.WoodPlanks)
+-- north-wall banner per lane (gray-box; art-pass decals later). Front (-Z) faces the room.
+local function laneBanner(x: number, text: string)
+	local b = block("Banner", Vector3.new(x, 15, 357), Vector3.new(18, 5, 0.4), Color3.fromRGB(40, 43, 48), Enum.Material.SmoothPlastic)
+	label(b, Enum.NormalId.Front, text, Color3.fromRGB(120, 210, 255))
+end
 
--- Start Match pad: stepping on it begins a match (handled by MatchService)
-local pad = Instance.new("Part")
-pad.Name = "StartPad"
-pad.Anchored = true
-pad.CanCollide = true
-pad.Size = Vector3.new(14, 1, 9)
-pad.CFrame = CFrame.new(0, 0.5, 268)
-pad.Color = Color3.fromRGB(70, 200, 100)
-pad.Material = Enum.Material.Neon
-pad.TopSurface = Enum.SurfaceType.Smooth
-pad.Parent = R
-local padGui = Instance.new("SurfaceGui")
-padGui.Face = Enum.NormalId.Top
-padGui.Parent = pad
-local padLbl = Instance.new("TextLabel")
-padLbl.Size = UDim2.fromScale(1, 1)
-padLbl.BackgroundTransparency = 1
-padLbl.Text = "▶  START MATCH"
-padLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-padLbl.Font = Enum.Font.GothamBlack
-padLbl.TextScaled = true
-padLbl.Parent = padGui
+-- small distance marker post in front of each lane's targets
+local function distanceMarker(x: number, z: number, text: string)
+	local post = block("DistPost", Vector3.new(x, 1.5, z), Vector3.new(3, 1.6, 0.3), Color3.fromRGB(255, 210, 70), Enum.Material.SmoothPlastic, T)
+	label(post, Enum.NormalId.Front, text, Color3.fromRGB(30, 30, 30))
+end
 
--- range sign facing the player
-local sign = block("Sign", Vector3.new(0, 12, 309), Vector3.new(42, 6, 0.4), DARK, Enum.Material.SmoothPlastic)
-local sg = Instance.new("SurfaceGui")
-sg.Face = Enum.NormalId.Front
-sg.Parent = sign
-local lbl = Instance.new("TextLabel")
-lbl.Size = UDim2.fromScale(1, 1)
-lbl.BackgroundTransparency = 1
-lbl.Text = "PRACTICE RANGE"
-lbl.TextColor3 = Color3.fromRGB(255, 230, 90)
-lbl.Font = Enum.Font.GothamBlack
-lbl.TextScaled = true
-lbl.Parent = sg
+-- Lane A: CQB / Scattergun (close, three boards)
+laneBanner(-30, "CQB\nSCATTERGUN")
+distanceMarker(-30, 278, "~15m")
+target("CqbTargetL", Vector3.new(-38, 4.5, 290), Vector2.new(6, 6), T)
+target("CqbTargetM", Vector3.new(-30, 4.5, 292), Vector2.new(6, 6), T)
+target("CqbTargetR", Vector3.new(-22, 4.5, 290), Vector2.new(6, 6), T)
+
+-- Lane B: Standard / Assault Marker (mid, two boards)
+laneBanner(-10, "STANDARD\nASSAULT")
+distanceMarker(-10, 286, "~30m")
+target("StdTargetNear", Vector3.new(-13, 4.5, 304), Vector2.new(6, 6), T)
+target("StdTargetFar", Vector3.new(-7, 4.5, 320), Vector2.new(5, 5), T)
+
+-- Lane C: Long Range / Recon (far, small board)
+laneBanner(12, "LONG RANGE\nRECON")
+distanceMarker(12, 300, "~65m")
+target("LongTarget", Vector3.new(12, 5, 350), Vector2.new(4.5, 4.5), T)
+
+-- Lane D: Mortar Pit (lob over a sandbag wall onto ground pads)
+laneBanner(34, "MORTAR PIT\nLOB IT")
+local sandbag = block("SandbagWall", Vector3.new(34, 2.5, 300), Vector3.new(20, 5, 2), OLIVE, Enum.Material.Sand, T)
+label(sandbag, Enum.NormalId.Front, "LOB OVER", Color3.fromRGB(245, 245, 235))
+pad("MortarPadL", Vector3.new(28, 0.25, 322), 7, T)
+pad("MortarPadR", Vector3.new(40, 0.25, 330), 7, T)
+pad("MortarPadC", Vector3.new(34, 0.25, 344), 7, T)
+
+-- ===== cover + props near the firing line =====
+block("CoverL", Vector3.new(-12, 2, 274), Vector3.new(5, 4, 5), WOOD, Enum.Material.WoodPlanks)
+block("CoverR", Vector3.new(12, 2, 274), Vector3.new(5, 4, 5), WOOD, Enum.Material.WoodPlanks)
+-- a couple of barrels for set dressing
+for _, x in ipairs({ -24, 26 }) do
+	local barrel = Instance.new("Part")
+	barrel.Name = "Barrel"
+	barrel.Shape = Enum.PartType.Cylinder
+	barrel.Anchored = true
+	barrel.Size = Vector3.new(4, 2.6, 2.6)
+	barrel.CFrame = CFrame.new(x, 2, 270) * CFrame.Angles(0, 0, math.rad(90))
+	barrel.Color = OLIVE
+	barrel.Material = Enum.Material.Metal
+	barrel.Parent = R
+end
+
+-- ===== signage =====
+local sign = block("Sign", Vector3.new(0, 17, 357), Vector3.new(30, 4, 0.4), DARK, Enum.Material.SmoothPlastic)
+label(sign, Enum.NormalId.Front, "PRACTICE RANGE", Color3.fromRGB(255, 230, 90))
+-- briefing board on the east wall (art-pass decal: range rules)
+local briefing = block("BriefingBoard", Vector3.new(51, 8, 270), Vector3.new(0.4, 8, 14), Color3.fromRGB(40, 43, 48), Enum.Material.SmoothPlastic)
+label(briefing, Enum.NormalId.Left, "RANGE\nRULES", Color3.fromRGB(210, 220, 235)) -- Left (-X) faces the room
+
+-- ===== light strips =====
+for _, z in ipairs({ 270, 300, 330 }) do
+	local strip = block("Light", Vector3.new(0, 19.4, z), Vector3.new(90, 0.3, 2), Color3.fromRGB(255, 250, 235), Enum.Material.Neon)
+	strip.CanCollide = false
+	local pl = Instance.new("PointLight")
+	pl.Range = 40
+	pl.Brightness = 1.4
+	pl.Parent = strip
+end
 
 -- players stay neutral in the lobby until match mode assigns teams
 for _, t in Teams:GetChildren() do
@@ -115,4 +254,4 @@ for _, t in Teams:GetChildren() do
 	end
 end
 
-print("[PracticeRange] built")
+print("[PracticeRange] built: 4 lanes, weapon rack, static targets")

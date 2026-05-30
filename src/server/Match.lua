@@ -34,6 +34,23 @@ local function setLobbySpawnEnabled(enabled: boolean)
 	end
 end
 
+-- Strip every tool off a player. The backpack survives a respawn, so rack-test markers and
+-- last round's shop buys would otherwise carry over. We clear here and let LoadCharacter
+-- re-add the StarterPack loadout (just the Assault Marker) for a clean slate each transition.
+local function clearLoadout(player: Player)
+	local function purge(container: Instance?)
+		if container then
+			for _, item in container:GetChildren() do
+				if item:IsA("Tool") then
+					item:Destroy()
+				end
+			end
+		end
+	end
+	purge(player:FindFirstChildOfClass("Backpack"))
+	purge(player.Character)
+end
+
 -- split players evenly across the two squads
 local function assignTeams()
 	local red, blue = squad("Red Squad"), squad("Blue Squad")
@@ -60,6 +77,7 @@ function Match.start()
 		end
 	end
 	for _, player in Players:GetPlayers() do
+		clearLoadout(player) -- drop any rack-test markers so matches start with just the Assault Marker
 		player:LoadCharacter() -- respawns at the player's team spawn in the arena
 	end
 	Remotes.MatchStarting:FireAllClients(true)
@@ -72,6 +90,7 @@ function Match.returnToLobby()
 	for _, player in Players:GetPlayers() do
 		player.Team = nil
 		player.Neutral = true
+		clearLoadout(player) -- back to a clean Assault Marker loadout; grab test gear from the rack again
 		player:LoadCharacter() -- respawns at the neutral lobby spawn
 	end
 	Remotes.MatchStarting:FireAllClients(false)
