@@ -5,6 +5,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local LobbyMode = require(Shared:WaitForChild("LobbyMode"))
@@ -87,6 +88,7 @@ cc.Parent = codeBox
 local joinBtn = button(0.69, Color3.fromRGB(60, 120, 220), "JOIN WITH CODE")
 
 local busy = false
+local token = 0 -- guards against a stale timeout resetting a newer request
 local function setBusy(b: boolean, msg: string?)
 	busy = b
 	createBtn.AutoButtonColor = not b
@@ -96,19 +98,37 @@ local function setBusy(b: boolean, msg: string?)
 	end
 end
 
+-- begin a request: show a message and arm a timeout so the menu can never hang forever
+local function begin(msg: string): number
+	token += 1
+	local mine = token
+	setBusy(true, msg)
+	task.delay(15, function()
+		if busy and token == mine then
+			setBusy(false, "That took too long. Check your connection and try again.")
+		end
+	end)
+	return mine
+end
+
 createBtn.MouseButton1Click:Connect(function()
 	if busy then
 		return
 	end
-	setBusy(true, "Creating lobby...")
-	local ok, res = pcall(function()
-		return Remotes.CreateLobby:InvokeServer()
+	local mine = begin("Creating lobby...")
+	task.spawn(function()
+		local ok, res = pcall(function()
+			return Remotes.CreateLobby:InvokeServer()
+		end)
+		if token ~= mine then
+			return
+		end
+		if ok and res and res.ok then
+			status.Text = "Code: " .. res.code .. "   -   teleporting..."
+		else
+			setBusy(false, (res and res.message) or "Could not create a lobby.")
+		end
 	end)
-	if ok and res and res.ok then
-		status.Text = "Code: " .. res.code .. "   -   teleporting..."
-	else
-		setBusy(false, (res and res.message) or "Could not create a lobby.")
-	end
 end)
 
 joinBtn.MouseButton1Click:Connect(function()
@@ -120,13 +140,25 @@ joinBtn.MouseButton1Click:Connect(function()
 		status.Text = "Enter your friend's code."
 		return
 	end
-	setBusy(true, "Joining " .. code .. "...")
-	local ok, res = pcall(function()
-		return Remotes.JoinLobby:InvokeServer(code)
+	local mine = begin("Joining " .. code .. "...")
+	task.spawn(function()
+		local ok, res = pcall(function()
+			return Remotes.JoinLobby:InvokeServer(code)
+		end)
+		if token ~= mine then
+			return
+		end
+		if ok and res and res.ok then
+			status.Text = "Found it! Teleporting..."
+		else
+			setBusy(false, (res and res.message) or "Could not join that lobby.")
+		end
 	end)
-	if ok and res and res.ok then
-		status.Text = "Found it! Teleporting..."
-	else
-		setBusy(false, (res and res.message) or "Could not join that lobby.")
+end)
+
+-- if the teleport itself fails, show why instead of sitting on "teleporting..."
+TeleportService.TeleportInitFailed:Connect(function(who: Player, _result, message: string)
+	if who == player then
+		setBusy(false, "Teleport failed. Try again.\n" .. tostring(message))
 	end
 end)
