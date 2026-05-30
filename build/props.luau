@@ -24,9 +24,10 @@ local IDS = {
 	kiosk = 78453486089917,
 }
 
--- tall axis of each import (from inspection): tower/watchtower import lying along +Z, the rest
--- stand on +Y. We rotate the +Z ones upright.
-local UPRIGHT = CFrame.Angles(-math.pi / 2, 0, 0)
+-- tall axis of each import (from inspection): tower/watchtower import lying along +Z with their
+-- top toward -Z, so rotate +90 about X to stand them up the right way (top -> +Y). The rest
+-- already stand on +Y.
+local UPRIGHT = CFrame.Angles(math.pi / 2, 0, 0)
 
 local arena = Workspace:WaitForChild("Arena")
 local old = Workspace:FindFirstChild("Props")
