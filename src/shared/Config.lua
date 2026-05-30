@@ -75,9 +75,6 @@ Config.Weapons = {
 		SpreadMaxDegrees = 6, -- worst-case spread while spraying
 		SpreadPerShot = 1.7, -- spread added each shot (must out-pace recovery to bloom while spraying)
 		SpreadRecoverPerSec = 6, -- spread recovered per second of not firing
-		-- recoil: a camera kick per shot that eases back
-		RecoilKickDegrees = 1.6, -- kick per shot
-		RecoilRecoverPerSec = 10, -- how fast the kick eases back
 	},
 	ReconMarker = {
 		DisplayName = "Recon Marker",

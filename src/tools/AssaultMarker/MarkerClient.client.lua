@@ -6,7 +6,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local Debris = game:GetService("Debris")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -73,25 +72,6 @@ tool.Unequipped:Connect(function()
 	hud.Enabled = false
 end)
 
--- recoil: a transient camera kick applied after the camera updates each frame, so it eases
--- back and never permanently changes where the cursor aims.
-local recoil = 0
-local MAX_RECOIL = math.rad(14)
-
-RunService:BindToRenderStep("MarkerRecoil", Enum.RenderPriority.Camera.Value + 1, function(dt)
-	if recoil <= 0 then
-		return
-	end
-	local camera = workspace.CurrentCamera
-	if camera then
-		camera.CFrame = camera.CFrame * CFrame.Angles(recoil, 0, 0)
-	end
-	recoil = recoil * math.max(0, 1 - dt * MARKER.RecoilRecoverPerSec)
-	if recoil < 0.0008 then
-		recoil = 0
-	end
-end)
-
 -- quick muzzle flash at the barrel tip. Local feedback for the shooter.
 local function muzzleFlash()
 	local character = player.Character
@@ -131,8 +111,7 @@ tool.Activated:Connect(function()
 	local ray = camera:ScreenPointToRay(mouse.X, mouse.Y)
 	Remotes.FireWeapon:FireServer(ray.Origin, ray.Direction)
 
-	-- local feel: kick the camera and flash the muzzle
-	recoil = math.min(MAX_RECOIL, recoil + math.rad(MARKER.RecoilKickDegrees))
+	-- local feel: flash the muzzle
 	muzzleFlash()
 end)
 
