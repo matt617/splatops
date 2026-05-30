@@ -69,12 +69,23 @@ banner.BackgroundTransparency = 0.1
 banner.TextColor3 = Color3.fromRGB(255, 230, 90)
 banner.Font = Enum.Font.GothamBlack
 banner.TextScaled = true
+banner.TextWrapped = true
 banner.Text = ""
 banner.Visible = false
 banner.ZIndex = 5
 banner.Parent = gui
 
 Remotes.MatchEnded.OnClientEvent:Connect(function(winningTeam: string)
-	banner.Text = tostring(winningTeam) .. " WINS"
+	banner.Text = tostring(winningTeam) .. " WINS!\nReturning to the lobby…"
 	banner.Visible = true
+end)
+
+-- clear the match HUD when a match starts or the lobby returns, so the win banner and tower
+-- readout do not linger on screen
+Remotes.MatchStarting.OnClientEvent:Connect(function(active: boolean)
+	banner.Visible = false
+	if not active then
+		status.Visible = false
+		redHealth, blueHealth, maxHealth = nil, nil, nil
+	end
 end)

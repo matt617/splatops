@@ -14,7 +14,7 @@ Config.Match = {
 	TeamCount = 2,
 	MinPlayersToStart = 2, -- low for testing, raise for real play
 	MatchTimeLimitSeconds = 900, -- 15 minute hard cap, then highest tower damage wins
-	IntermissionSeconds = 30, -- between matches in a persistent lobby
+	IntermissionSeconds = 8, -- pause after a win before returning everyone to the lobby
 }
 
 -- ============================================================================
