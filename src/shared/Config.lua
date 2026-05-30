@@ -215,6 +215,16 @@ Config.VFX = {
 	HitFlashDurationSeconds = 0.15,
 	EliminatedStampDurationSeconds = 2.0,
 	TaggedOutAnimation = "CHICKEN", -- placeholder identifier, swap with actual asset
+
+	-- Paint splatter art. Grayscale (white) splatter images with alpha, tinted to the team color.
+	-- Fill PaintSplatterImages with the uploaded asset ids; with none set, splats fall back to the
+	-- plain disc. 1 to MarksPerHit decals spawn per hit, each a random image/rotation/size.
+	PaintSplatterImages = {
+		-- "rbxassetid://...", x8
+	},
+	PaintDropletImage = "", -- single droplet, used for the impact particle burst
+	PaintMarksPerHit = 3, -- up to this many overlapping marks per confirmed hit
+	PaintSplatMaxOnScreen = 120, -- recycle the oldest beyond this, to stay light on iPad
 }
 
 return Config
