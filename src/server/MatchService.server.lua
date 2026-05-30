@@ -15,6 +15,7 @@ end
 local Match = require(ServerScriptService:WaitForChild("Match"))
 local Tower = require(ServerScriptService:WaitForChild("Tower"))
 local Config = require(Shared:WaitForChild("Config"))
+local Remotes = require(Shared:WaitForChild("Remotes"))
 
 -- capture the share code carried in on teleport so the lobby can display it to the host
 local function captureCode(player: Player)
@@ -40,19 +41,38 @@ Tower.Destroyed.Event:Connect(function()
 	end)
 end)
 
--- the Start Match pad in the lobby
+-- a start request from the lobby UI button or the Start pad. Below the minimum player count
+-- it asks the requester to confirm rather than starting (unless they force it).
+local function requestStart(player: Player, force: boolean)
+	if Match.state ~= "Lobby" then
+		return
+	end
+	local count = #Players:GetPlayers()
+	if not force and count < Config.Match.MinPlayersToStart then
+		Remotes.ConfirmStart:FireClient(player, count, Config.Match.MinPlayersToStart)
+		return
+	end
+	Match.start()
+end
+
+Remotes.RequestStart.OnServerEvent:Connect(function(player, force)
+	requestStart(player, force == true)
+end)
+
+-- stepping on the Start pad is an alternate way to request a start
 local range = Workspace:WaitForChild("PracticeRange")
 local pad = range:WaitForChild("StartPad")
 local debounce = false
 pad.Touched:Connect(function(hit)
-	if debounce or Match.state ~= "Lobby" then
+	if debounce then
 		return
 	end
-	if not Players:GetPlayerFromCharacter(hit.Parent) then
+	local player = Players:GetPlayerFromCharacter(hit.Parent)
+	if not player then
 		return
 	end
 	debounce = true
-	Match.start()
+	requestStart(player, false)
 	task.delay(2, function()
 		debounce = false
 	end)

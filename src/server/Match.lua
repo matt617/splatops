@@ -6,6 +6,7 @@
 
 local Players = game:GetService("Players")
 local Teams = game:GetService("Teams")
+local Workspace = game:GetService("Workspace")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -19,6 +20,16 @@ Match.state = "Lobby"
 local function squad(name: string): Team?
 	local t = Teams:FindFirstChild(name)
 	return (t and t:IsA("Team")) and t or nil
+end
+
+-- the neutral lobby spawn. It must be disabled during a match, otherwise team players can
+-- respawn there instead of at their base (which looks like "Start did nothing").
+local function setLobbySpawnEnabled(enabled: boolean)
+	local range = Workspace:FindFirstChild("PracticeRange")
+	local spawn = range and range:FindFirstChild("LobbySpawn")
+	if spawn and spawn:IsA("SpawnLocation") then
+		spawn.Enabled = enabled
+	end
 end
 
 -- split players evenly across the two squads
@@ -39,6 +50,7 @@ function Match.start()
 	end
 	Match.state = "Match"
 	Tower.registerAll() -- reset tower health and clear the match-over flag
+	setLobbySpawnEnabled(false) -- so team players spawn at their base, not back in the lobby
 	assignTeams()
 	for _, player in Players:GetPlayers() do
 		player:LoadCharacter() -- respawns at the player's team spawn in the arena
@@ -49,6 +61,7 @@ end
 function Match.returnToLobby()
 	Match.state = "Lobby"
 	Tower.registerAll() -- clear match-over so lobby practice fire works again
+	setLobbySpawnEnabled(true) -- neutral players spawn back in the practice range
 	for _, player in Players:GetPlayers() do
 		player.Team = nil
 		player.Neutral = true

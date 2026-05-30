@@ -58,6 +58,8 @@ Remotes.CoinsChanged = remote("CoinsChanged", "RemoteEvent")
 Remotes.MatchStarting = remote("MatchStarting", "RemoteEvent")
 Remotes.MatchEnded = remote("MatchEnded", "RemoteEvent")
 Remotes.TowerDamaged = remote("TowerDamaged", "RemoteEvent")
+Remotes.RequestStart = remote("RequestStart", "RemoteEvent") -- client asks to start (force?)
+Remotes.ConfirmStart = remote("ConfirmStart", "RemoteEvent") -- server asks to confirm a short-handed start
 
 -- Lobby
 Remotes.CreateLobby = remote("CreateLobby", "RemoteFunction")
