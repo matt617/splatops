@@ -8,7 +8,12 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Remotes = require(Shared:WaitForChild("Remotes"))
+local LobbyMode = require(Shared:WaitForChild("LobbyMode"))
+if LobbyMode.get() ~= "party" then
+	return -- practice targets only exist in a private-lobby (party) server
+end
 
 local RESPAWN_SECONDS = 2
 local DUMMY = Color3.fromRGB(190, 195, 200)
