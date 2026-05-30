@@ -14,6 +14,7 @@ end
 
 local Match = require(ServerScriptService:WaitForChild("Match"))
 local Tower = require(ServerScriptService:WaitForChild("Tower"))
+local Stats = require(ServerScriptService:WaitForChild("Stats"))
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 
@@ -34,12 +35,55 @@ for _, p in Players:GetPlayers() do
 end
 Players.PlayerAdded:Connect(captureCode)
 
--- tower fell -> after the intermission, send everyone back to the lobby
-Tower.Destroyed.Event:Connect(function()
-	task.delay(Config.Match.IntermissionSeconds, function()
-		Match.returnToLobby()
+-- The match clock. Each round bumps the generation so a stale clock from the previous round
+-- stops ticking. When it runs out with no tower down, the team that dealt the most tower
+-- damage wins (a draw if it is even).
+local matchGen = 0
+
+local function startClock()
+	matchGen += 1
+	local gen = matchGen
+	task.spawn(function()
+		local remaining = Config.Match.MatchTimeLimitSeconds
+		Remotes.MatchClock:FireAllClients(remaining)
+		while gen == matchGen and not Tower.isMatchOver() do
+			task.wait(1)
+			if gen ~= matchGen or Tower.isMatchOver() then
+				break
+			end
+			remaining -= 1
+			Remotes.MatchClock:FireAllClients(remaining)
+			if remaining <= 0 then
+				local dmg = Stats.teamTowerDamage()
+				local winner = "Draw"
+				if dmg.Red > dmg.Blue then
+					winner = "Red Squad"
+				elseif dmg.Blue > dmg.Red then
+					winner = "Blue Squad"
+				end
+				Tower.forceEnd(winner)
+				break
+			end
+		end
 	end)
-end)
+end
+
+-- Round over (tower fell or clock ran out): freeze the clock, send the scoreboard, hold for the
+-- intermission, then auto-rematch if enough players remain, otherwise drop back to the lobby.
+local function endRound(winner: string)
+	matchGen += 1 -- cancel the running clock
+	Remotes.MatchStats:FireAllClients(winner, Stats.snapshot(), Config.Match.IntermissionSeconds)
+	task.delay(Config.Match.IntermissionSeconds, function()
+		if Config.Match.AutoRematch and #Players:GetPlayers() >= Config.Match.MinPlayersToStart then
+			Match.rematch()
+			startClock()
+		else
+			Match.returnToLobby()
+		end
+	end)
+end
+
+Tower.Destroyed.Event:Connect(endRound)
 
 -- a start request from the lobby UI button or the Start pad. Below the minimum player count
 -- it asks the requester to confirm rather than starting (unless they force it).
@@ -53,6 +97,7 @@ local function requestStart(player: Player, force: boolean)
 		return
 	end
 	Match.start()
+	startClock()
 end
 
 Remotes.RequestStart.OnServerEvent:Connect(function(player, force)

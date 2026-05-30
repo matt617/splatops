@@ -14,7 +14,8 @@ Config.Match = {
 	TeamCount = 2,
 	MinPlayersToStart = 2, -- low for testing, raise for real play
 	MatchTimeLimitSeconds = 900, -- 15 minute hard cap, then highest tower damage wins
-	IntermissionSeconds = 8, -- pause after a win before returning everyone to the lobby
+	IntermissionSeconds = 8, -- stats screen duration after a win before the next round
+	AutoRematch = true, -- after the stats screen, auto-start the next round if enough players remain
 }
 
 -- ============================================================================

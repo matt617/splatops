@@ -19,6 +19,9 @@ local Tower = {}
 -- flow listens to this to end the round.
 Tower.Destroyed = Instance.new("BindableEvent")
 
+-- fired on each damaging tower hit: (shooterPlayer?, owner). Stats credits the shooter.
+Tower.Damaged = Instance.new("BindableEvent")
+
 local HEALTH_PER_PLAYER = Config.Tower.HealthPerPlayer
 local DAMAGE_PER_HIT = Config.Tower.HitsToDamageRatio
 
@@ -95,6 +98,7 @@ function Tower.applyDamage(towerPart: BasePart, hitPosition: Vector3, hitNormal:
 	if shooterPlayer then
 		Economy.award(shooterPlayer, Config.Economy.CoinsPerTowerHit)
 	end
+	Tower.Damaged:Fire(shooterPlayer, owner)
 	Remotes.TowerDamaged:FireAllClients(owner, health, maxHp)
 
 	if health <= 0 then
@@ -103,6 +107,17 @@ function Tower.applyDamage(towerPart: BasePart, hitPosition: Vector3, hitNormal:
 		Remotes.MatchEnded:FireAllClients(ENEMY_NAME[owner])
 		Tower.Destroyed:Fire(ENEMY_NAME[owner])
 	end
+end
+
+-- End the match without a tower falling (the time limit ran out). `winner` is a full team
+-- name or "Draw". Mirrors the tower-destroyed path so the match flow ends the round the same way.
+function Tower.forceEnd(winner: string)
+	if matchOver then
+		return
+	end
+	matchOver = true
+	Remotes.MatchEnded:FireAllClients(winner)
+	Tower.Destroyed:Fire(winner)
 end
 
 return Tower

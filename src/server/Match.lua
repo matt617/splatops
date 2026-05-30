@@ -15,6 +15,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Tower = require(ServerScriptService:WaitForChild("Tower"))
 local Economy = require(ServerScriptService:WaitForChild("Economy"))
+local Stats = require(ServerScriptService:WaitForChild("Stats"))
 
 local Match = {}
 Match.state = "Lobby"
@@ -63,14 +64,13 @@ local function assignTeams()
 	end
 end
 
-function Match.start()
-	if Match.state ~= "Lobby" then
-		return
-	end
-	Match.state = "Match"
+-- Set up a fresh round: reset towers, split teams, reset coins and stats, and spawn everyone
+-- into the arena. Shared by the first start and the auto-rematch.
+local function beginRound()
 	Tower.registerAll() -- reset tower health and clear the match-over flag
 	setLobbySpawnEnabled(false) -- so team players spawn at their base, not back in the lobby
 	assignTeams()
+	Stats.reset()
 	if Config.Economy.CoinsResetEachMatch then
 		for _, player in Players:GetPlayers() do
 			Economy.reset(player)
@@ -81,6 +81,22 @@ function Match.start()
 		player:LoadCharacter() -- respawns at the player's team spawn in the arena
 	end
 	Remotes.MatchStarting:FireAllClients(true)
+end
+
+function Match.start()
+	if Match.state ~= "Lobby" then
+		return
+	end
+	Match.state = "Match"
+	beginRound()
+end
+
+-- Auto-rematch: start the next round directly from a finished match, no lobby round trip.
+function Match.rematch()
+	if Match.state ~= "Match" then
+		return
+	end
+	beginRound()
 end
 
 function Match.returnToLobby()

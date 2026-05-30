@@ -1,6 +1,7 @@
 --!strict
--- Match HUD: a tower-health readout at the top and a win banner when a tower falls.
--- Display only. The server decides tower health and the winner.
+-- Match HUD: the comms-tower health readout and the match countdown clock at the top of the
+-- screen. The end-of-match winner and scoreboard are handled by StatsScreen. Display only;
+-- the server owns tower health, the clock, and the result.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,11 +16,29 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- tower health readout, top center
+-- match clock, top center
+local clock = Instance.new("TextLabel")
+clock.Name = "MatchClock"
+clock.AnchorPoint = Vector2.new(0.5, 0)
+clock.Position = UDim2.fromScale(0.5, 0.015)
+clock.Size = UDim2.fromOffset(120, 34)
+clock.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+clock.BackgroundTransparency = 0.4
+clock.TextColor3 = Color3.fromRGB(235, 235, 235)
+clock.Font = Enum.Font.GothamBlack
+clock.TextScaled = true
+clock.Text = ""
+clock.Visible = false
+clock.Parent = gui
+local clockCorner = Instance.new("UICorner")
+clockCorner.CornerRadius = UDim.new(0, 8)
+clockCorner.Parent = clock
+
+-- tower health readout, just below the clock
 local status = Instance.new("TextLabel")
 status.Name = "TowerStatus"
 status.AnchorPoint = Vector2.new(0.5, 0)
-status.Position = UDim2.fromScale(0.5, 0.02)
+status.Position = UDim2.fromScale(0.5, 0.075)
 status.Size = UDim2.fromScale(0.42, 0.05)
 status.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 status.BackgroundTransparency = 0.4
@@ -55,34 +74,24 @@ Remotes.TowerDamaged.OnClientEvent:Connect(function(owner: string, health: numbe
 	refresh()
 end)
 
--- win banner, center screen
-local banner = Instance.new("TextLabel")
-banner.Name = "WinBanner"
-banner.AnchorPoint = Vector2.new(0.5, 0.5)
-banner.Position = UDim2.fromScale(0.5, 0.5)
-banner.Size = UDim2.fromScale(0.7, 0.2)
-banner.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-banner.BackgroundTransparency = 0.1
-banner.TextColor3 = Color3.fromRGB(255, 230, 90)
-banner.Font = Enum.Font.GothamBlack
-banner.TextScaled = true
-banner.TextWrapped = true
-banner.Text = ""
-banner.Visible = false
-banner.ZIndex = 5
-banner.Parent = gui
+local function fmt(seconds: number): string
+	seconds = math.max(0, seconds)
+	return string.format("%d:%02d", math.floor(seconds / 60), seconds % 60)
+end
 
-Remotes.MatchEnded.OnClientEvent:Connect(function(winningTeam: string)
-	banner.Text = tostring(winningTeam) .. " WINS!\nReturning to the lobby…"
-	banner.Visible = true
+Remotes.MatchClock.OnClientEvent:Connect(function(remaining: number)
+	clock.Visible = true
+	clock.Text = fmt(remaining)
+	-- last minute turns red as a nudge
+	clock.TextColor3 = if remaining <= 60 then Color3.fromRGB(235, 90, 90) else Color3.fromRGB(235, 235, 235)
 end)
 
--- clear the match HUD when a match starts or the lobby returns, so the win banner and tower
--- readout do not linger on screen
+-- clear the match HUD when the lobby returns so it does not linger; the clock will reappear
+-- on the next MatchClock tick when a round starts
 Remotes.MatchStarting.OnClientEvent:Connect(function(active: boolean)
-	banner.Visible = false
 	if not active then
 		status.Visible = false
+		clock.Visible = false
 		redHealth, blueHealth, redMax, blueMax = nil, nil, nil, nil
 	end
 end)
