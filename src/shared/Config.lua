@@ -62,12 +62,12 @@ Config.Weapons = {
 		Price = 0, -- starter weapon
 		Damage = 1, -- 3 hits to tag-out
 		FireRateSeconds = 0.2,
-		MaxRangeStuds = 200,
+		MaxRangeStuds = 120, -- aim/travel cap; effective hit range is shorter (set by ballistics below)
 		AmmoPerMag = 25,
 		ReloadSeconds = 1.5,
 		PaintColor = "TEAM", -- uses team color
 		-- projectile feel: a paintball that flies and splats, not an instant laser
-		ProjectileSpeed = 110, -- studs per second
+		ProjectileSpeed = 90, -- studs per second; with gravity below, effective range ~90 studs
 		ProjectileGravity = 90, -- studs/s^2 downward; gives the paintball a visible arc
 		ProjectileSize = 0.8, -- ball diameter in studs
 		SpreadDegrees = 0, -- 0 = the ball lands where you tap (kid friendly); raise to scatter
