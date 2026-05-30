@@ -228,6 +228,9 @@ function Combat.applyHit(
 		Remotes.PaintHitVFX:FireClient(victimPlayer, paintColor)
 	end
 
+	-- remember who landed the hit (used for tag credit and the practice counter)
+	humanoid:SetAttribute("LastHitBy", if shooterPlayer then shooterPlayer.UserId else 0)
+
 	local hits = ((humanoid:GetAttribute("Hits") :: number?) or 0) + MARKER.Damage
 	humanoid:SetAttribute("Hits", hits)
 

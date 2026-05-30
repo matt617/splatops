@@ -47,6 +47,9 @@ Remotes.ReloadWeapon = remote("ReloadWeapon", "RemoteEvent")
 Remotes.PlayerTagged = remote("PlayerTagged", "RemoteEvent")
 Remotes.PaintHitVFX = remote("PaintHitVFX", "RemoteEvent")
 
+-- Lobby practice / tutorial
+Remotes.PracticeProgress = remote("PracticeProgress", "RemoteEvent")
+
 -- Economy / Quartermaster
 Remotes.PurchaseItem = remote("PurchaseItem", "RemoteFunction")
 Remotes.CoinsChanged = remote("CoinsChanged", "RemoteEvent")

@@ -2,9 +2,13 @@
 -- Lobby practice range: keeps a respawning paint target on each stand so players warm up
 -- the 3-hit tap-to-shoot. Targets reuse the normal combat path (they are simple humanoid
 -- dummies), so shooting one three times tags it out; it then vanishes and a fresh one pops
--- up after a short delay.
+-- up after a short delay. Each splat is credited to the shooter and reported to their HUD.
 
 local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 
 local RESPAWN_SECONDS = 2
 local DUMMY = Color3.fromRGB(190, 195, 200)
@@ -12,6 +16,8 @@ local HEAD = Color3.fromRGB(210, 200, 185)
 
 local range = Workspace:WaitForChild("PracticeRange")
 local markers = range:WaitForChild("Targets")
+
+local splatsByPlayer: { [Player]: number } = {}
 
 local function spawnTarget(marker: BasePart)
 	local base = marker.Position
@@ -40,8 +46,16 @@ local function spawnTarget(marker: BasePart)
 	model.PrimaryPart = root
 	model.Parent = range
 
-	-- shot out (3 hits) -> the combat code sets Health to 0 -> respawn a fresh target
+	-- shot out (3 hits) -> combat sets Health to 0 -> credit the shooter, then respawn
 	humanoid.Died:Connect(function()
+		local id = humanoid:GetAttribute("LastHitBy") :: number?
+		if id and id ~= 0 then
+			local shooter = Players:GetPlayerByUserId(id)
+			if shooter then
+				splatsByPlayer[shooter] = (splatsByPlayer[shooter] or 0) + 1
+				Remotes.PracticeProgress:FireClient(shooter, splatsByPlayer[shooter])
+			end
+		end
 		task.delay(RESPAWN_SECONDS, function()
 			if model.Parent then
 				model:Destroy()
@@ -58,3 +72,7 @@ for _, marker in markers:GetChildren() do
 		spawnTarget(marker)
 	end
 end
+
+Players.PlayerRemoving:Connect(function(player)
+	splatsByPlayer[player] = nil
+end)
