@@ -82,9 +82,11 @@ tiled(walls.WallEast, Enum.NormalId.Left, ASSET.wallConcrete, 24) -- x=+130, inw
 -- floor: tiled metal on top
 tiled(arena:WaitForChild("Floor"):WaitForChild("Floor"), Enum.NormalId.Top, ASSET.floorMetal, 24)
 
--- squad emblems on each base's back wall, behind the tower
-board("RedBanner", CFrame.new(-128.6, 18, 0), Vector3.new(0.4, 16, 18), Enum.NormalId.Right, ASSET.redEmblem)
-board("BlueBanner", CFrame.new(128.6, 18, 0), Vector3.new(0.4, 16, 18), Enum.NormalId.Left, ASSET.blueEmblem)
+-- squad emblems flank the comms tower on the back wall (not hidden behind it)
+board("RedBannerA", CFrame.new(-128.6, 12, -16), Vector3.new(0.4, 12, 12), Enum.NormalId.Right, ASSET.redEmblem)
+board("RedBannerB", CFrame.new(-128.6, 12, 16), Vector3.new(0.4, 12, 12), Enum.NormalId.Right, ASSET.redEmblem)
+board("BlueBannerA", CFrame.new(128.6, 12, -16), Vector3.new(0.4, 12, 12), Enum.NormalId.Left, ASSET.blueEmblem)
+board("BlueBannerB", CFrame.new(128.6, 12, 16), Vector3.new(0.4, 12, 12), Enum.NormalId.Left, ASSET.blueEmblem)
 
 -- facility poster on the south wall near the red base
 board("Poster", CFrame.new(-60, 12, -63.6), Vector3.new(12, 18, 0.4), Enum.NormalId.Back, ASSET.poster)
