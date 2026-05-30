@@ -159,6 +159,17 @@ end
 watchtower(50, 0, 1)
 watchtower(-50, 0, -1)
 
+-- hidden dog portrait: tucked under the east watchtower deck, found by standing under the
+-- tower and looking up. Easter egg, keep it. See also the squad photo in the practice range.
+do
+	block(fCover, "DogPortraitFrame", Vector3.new(50, 8.95, 0), Vector3.new(4.4, 0.2, 4.4), Color3.fromRGB(28, 28, 32), Enum.Material.SmoothPlastic)
+	local photo = block(fCover, "DogPortrait", Vector3.new(50, 8.83, 0), Vector3.new(4, 0.15, 4), Color3.fromRGB(18, 18, 22), Enum.Material.SmoothPlastic)
+	local d = Instance.new("Decal")
+	d.Texture = "rbxassetid://88147646373265"
+	d.Face = Enum.NormalId.Bottom -- faces down, seen by looking up from under the deck
+	d.Parent = photo
+end
+
 -- teams (names match Config.Teams[*].Name so the combat team checks line up)
 local function ensureTeam(name: string, color: Color3)
 	local t = Teams:FindFirstChild(name)

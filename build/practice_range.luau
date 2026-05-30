@@ -251,6 +251,17 @@ do
 	d.Parent = briefing
 end
 
+-- hidden dog portrait: low on the south wall behind the lobby spawn, found by turning around
+-- on spawn. Easter egg, keep it. (The kids' squad photo is hidden in the mortar pit.)
+do
+	block("DogPortraitFrame", Vector3.new(12, 3, 243.0), Vector3.new(4.4, 4.4, 0.2), Color3.fromRGB(28, 28, 32), Enum.Material.SmoothPlastic)
+	local photo = block("DogPortrait", Vector3.new(12, 3, 243.2), Vector3.new(4, 4, 0.15), Color3.fromRGB(18, 18, 22), Enum.Material.SmoothPlastic)
+	local d = Instance.new("Decal")
+	d.Texture = "rbxassetid://134540405441809"
+	d.Face = Enum.NormalId.Back -- Back (+Z) faces into the room
+	d.Parent = photo
+end
+
 -- ===== light strips =====
 for _, z in ipairs({ 270, 300, 330 }) do
 	local strip = block("Light", Vector3.new(0, 19.4, z), Vector3.new(90, 0.3, 2), Color3.fromRGB(255, 250, 235), Enum.Material.Neon)
