@@ -214,6 +214,17 @@ pad("MortarPadL", Vector3.new(28, 0.25, 322), 7, T)
 pad("MortarPadR", Vector3.new(40, 0.25, 330), 7, T)
 pad("MortarPadC", Vector3.new(34, 0.25, 344), 7, T)
 
+-- hidden squad photo: on the back (north) face of the sandbag wall, only seen by players who
+-- wander downrange into the mortar pit. Easter egg, the kids as their Roblox avatars. Keep it.
+do
+	block("SquadPhotoFrame", Vector3.new(38, 3, 301.1), Vector3.new(5.6, 5.6, 0.2), Color3.fromRGB(28, 28, 32), Enum.Material.SmoothPlastic, T)
+	local photo = block("SquadPhoto", Vector3.new(38, 3, 301.3), Vector3.new(5, 5, 0.15), Color3.fromRGB(18, 18, 22), Enum.Material.SmoothPlastic, T)
+	local decal = Instance.new("Decal")
+	decal.Texture = "rbxassetid://101017294556294"
+	decal.Face = Enum.NormalId.Back -- Back (+Z) faces into the pit to the north
+	decal.Parent = photo
+end
+
 -- ===== cover + props near the firing line =====
 block("CoverL", Vector3.new(-12, 2, 274), Vector3.new(5, 4, 5), WOOD, Enum.Material.WoodPlanks)
 block("CoverR", Vector3.new(12, 2, 274), Vector3.new(5, 4, 5), WOOD, Enum.Material.WoodPlanks)
