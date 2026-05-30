@@ -4,6 +4,9 @@
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 
 local player = Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
@@ -82,3 +85,8 @@ end
 
 render()
 UserInputService.LastInputTypeChanged:Connect(render)
+
+-- the controls card belongs to the lobby; hide it during a match
+Remotes.MatchStarting.OnClientEvent:Connect(function(active: boolean)
+	gui.Enabled = not active
+end)

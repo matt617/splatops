@@ -71,6 +71,29 @@ end
 block("Cover1", Vector3.new(-12, 2, 278), Vector3.new(5, 4, 5), Color3.fromRGB(116, 92, 60), Enum.Material.WoodPlanks)
 block("Cover2", Vector3.new(12, 2, 283), Vector3.new(5, 4, 5), Color3.fromRGB(116, 92, 60), Enum.Material.WoodPlanks)
 
+-- Start Match pad: stepping on it begins a match (handled by MatchService)
+local pad = Instance.new("Part")
+pad.Name = "StartPad"
+pad.Anchored = true
+pad.CanCollide = true
+pad.Size = Vector3.new(14, 1, 9)
+pad.CFrame = CFrame.new(0, 0.5, 268)
+pad.Color = Color3.fromRGB(70, 200, 100)
+pad.Material = Enum.Material.Neon
+pad.TopSurface = Enum.SurfaceType.Smooth
+pad.Parent = R
+local padGui = Instance.new("SurfaceGui")
+padGui.Face = Enum.NormalId.Top
+padGui.Parent = pad
+local padLbl = Instance.new("TextLabel")
+padLbl.Size = UDim2.fromScale(1, 1)
+padLbl.BackgroundTransparency = 1
+padLbl.Text = "▶  START MATCH"
+padLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+padLbl.Font = Enum.Font.GothamBlack
+padLbl.TextScaled = true
+padLbl.Parent = padGui
+
 -- range sign facing the player
 local sign = block("Sign", Vector3.new(0, 12, 309), Vector3.new(42, 6, 0.4), DARK, Enum.Material.SmoothPlastic)
 local sg = Instance.new("SurfaceGui")

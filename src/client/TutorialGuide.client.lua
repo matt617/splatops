@@ -127,4 +127,13 @@ if player.Character then
 end
 player.CharacterAdded:Connect(watchCharacter)
 
+-- the tutorial belongs to the lobby; hide during a match, restore in the lobby if unfinished
+Remotes.MatchStarting.OnClientEvent:Connect(function(active: boolean)
+	if active then
+		gui.Enabled = false
+	elseif not finished then
+		gui.Enabled = true
+	end
+end)
+
 refresh()

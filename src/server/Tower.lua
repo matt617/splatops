@@ -13,6 +13,10 @@ local PaintSplat = require(Shared:WaitForChild("PaintSplat"))
 
 local Tower = {}
 
+-- fired on the server when a tower falls, with the winning team's full name. The match
+-- flow listens to this to end the round.
+Tower.Destroyed = Instance.new("BindableEvent")
+
 local MAX_HEALTH = Config.Tower.MaxHealth
 local DAMAGE_PER_HIT = Config.Tower.HitsToDamageRatio
 
@@ -88,6 +92,7 @@ function Tower.applyDamage(towerPart: BasePart, hitPosition: Vector3, hitNormal:
 		towerPart:SetAttribute("Destroyed", true)
 		matchOver = true
 		Remotes.MatchEnded:FireAllClients(ENEMY_NAME[owner])
+		Tower.Destroyed:Fire(ENEMY_NAME[owner])
 	end
 end
 
