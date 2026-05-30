@@ -6,7 +6,10 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+local AssetService = game:GetService("AssetService")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local WeaponMeshes = require(Shared:WaitForChild("WeaponMeshes"))
 
 local WeaponModel = {}
 
@@ -84,7 +87,69 @@ local function specsFor(style): { any }
 	}
 end
 
+-- 3D-model path: load each MeshPart once (cached), then clone, color, scale, and weld to the
+-- Handle. Used when the weapon has an entry in WeaponMeshes; otherwise the part-built path runs.
+local meshCache: { [string]: MeshPart } = {}
+local function meshTemplate(meshId: string): MeshPart?
+	local cached = meshCache[meshId]
+	if cached then
+		return cached
+	end
+	local ok, part = pcall(function()
+		return AssetService:CreateMeshPartAsync(meshId, { CollisionFidelity = Enum.CollisionFidelity.Box })
+	end)
+	if not ok or not part then
+		return nil
+	end
+	meshCache[meshId] = part
+	return part
+end
+
+local function buildFromMeshes(tool: Tool, def, accent: Color3)
+	local handle = tool:WaitForChild("Handle") :: BasePart
+	handle.Transparency = 1
+	handle.Material = Enum.Material.SmoothPlastic
+	handle.CanCollide = false
+	local body = def.parts[1]
+	handle.Size = Vector3.new(body.size[1] * def.scale, body.size[2] * def.scale, body.size[3] * def.scale)
+
+	for _, part in def.parts do
+		local template = meshTemplate(part.mesh)
+		if template then
+			local mp = template:Clone()
+			mp.Name = part.name
+			mp.Size = Vector3.new(part.size[1] * def.scale, part.size[2] * def.scale, part.size[3] * def.scale)
+			mp.Anchored = false
+			mp.CanCollide = false
+			mp.Massless = true
+			mp.CastShadow = false
+			mp.Material = Enum.Material.SmoothPlastic
+			if part.role == "team" then
+				mp.Color = accent
+			elseif part.role == "trim" then
+				mp.Color = DARK
+			else
+				mp.Color = GUN
+			end
+			local cf = CFrame.new(part.pos[1] * def.scale, part.pos[2] * def.scale, part.pos[3] * def.scale)
+			mp.CFrame = handle.CFrame * cf
+			mp.Parent = tool
+			local weld = Instance.new("Weld")
+			weld.Part0 = handle
+			weld.Part1 = mp
+			weld.C0 = cf
+			weld.Parent = handle
+		end
+	end
+end
+
 function WeaponModel.build(tool: Tool)
+	local meshDef = WeaponMeshes[tool.Name]
+	if meshDef then
+		buildFromMeshes(tool, meshDef, accentColor(tool))
+		return
+	end
+
 	local handle = tool:WaitForChild("Handle") :: BasePart
 	local style = STYLES[tool.Name] or STYLES.AssaultMarker
 	local accent = accentColor(tool)
