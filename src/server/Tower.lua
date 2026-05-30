@@ -10,6 +10,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local PaintSplat = require(Shared:WaitForChild("PaintSplat"))
+local Economy = require(game:GetService("ServerScriptService"):WaitForChild("Economy"))
 
 local Tower = {}
 
@@ -57,15 +58,6 @@ function Tower.resolveTowerPart(instance: Instance): BasePart?
 	return nil
 end
 
-local function awardCoins(player: Player?, amount: number)
-	if not player then
-		return
-	end
-	local total = ((player:GetAttribute("Coins") :: number?) or 0) + amount
-	player:SetAttribute("Coins", total)
-	Remotes.CoinsChanged:FireClient(player, total)
-end
-
 function Tower.applyDamage(towerPart: BasePart, hitPosition: Vector3, hitNormal: Vector3, paintColor: Color3, shooterPlayer: Player?)
 	if matchOver or towerPart:GetAttribute("Destroyed") == true then
 		return
@@ -85,7 +77,9 @@ function Tower.applyDamage(towerPart: BasePart, hitPosition: Vector3, hitNormal:
 
 	local health = math.max(0, ((towerPart:GetAttribute("Health") :: number?) or MAX_HEALTH) - DAMAGE_PER_HIT)
 	towerPart:SetAttribute("Health", health)
-	awardCoins(shooterPlayer, Config.Economy.CoinsPerTowerHit)
+	if shooterPlayer then
+		Economy.award(shooterPlayer, Config.Economy.CoinsPerTowerHit)
+	end
 	Remotes.TowerDamaged:FireAllClients(owner, health, MAX_HEALTH)
 
 	if health <= 0 then

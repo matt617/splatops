@@ -11,8 +11,10 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Tower = require(ServerScriptService:WaitForChild("Tower"))
+local Economy = require(ServerScriptService:WaitForChild("Economy"))
 
 local Match = {}
 Match.state = "Lobby"
@@ -52,6 +54,11 @@ function Match.start()
 	Tower.registerAll() -- reset tower health and clear the match-over flag
 	setLobbySpawnEnabled(false) -- so team players spawn at their base, not back in the lobby
 	assignTeams()
+	if Config.Economy.CoinsResetEachMatch then
+		for _, player in Players:GetPlayers() do
+			Economy.reset(player)
+		end
+	end
 	for _, player in Players:GetPlayers() do
 		player:LoadCharacter() -- respawns at the player's team spawn in the arena
 	end

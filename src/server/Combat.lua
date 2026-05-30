@@ -15,6 +15,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local PaintSplat = require(Shared:WaitForChild("PaintSplat"))
 local Tower = require(ServerScriptService:WaitForChild("Tower"))
 local Projectile = require(ServerScriptService:WaitForChild("Projectile"))
+local Economy = require(ServerScriptService:WaitForChild("Economy"))
 
 local Combat = {}
 
@@ -235,6 +236,9 @@ function Combat.applyHit(
 	humanoid:SetAttribute("Hits", hits)
 
 	if hits >= MAX_HITS then
+		if shooterPlayer then
+			Economy.award(shooterPlayer, Config.Economy.CoinsPerTag)
+		end
 		Combat.tagOut(targetCharacter, victimPlayer)
 	end
 	return true
