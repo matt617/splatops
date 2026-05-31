@@ -234,4 +234,18 @@ Config.VFX = {
 	PaintSplatMaxOnScreen = 120, -- recycle the oldest beyond this, to stay light on iPad
 }
 
+-- ============================================================================
+-- ADMIN
+-- ============================================================================
+
+Config.Admin = {
+	-- always-admin user ids. Admins fly, hold every weapon, and never run out of ammo.
+	UserIds = {
+		[9391744435] = true, -- the host's son
+	},
+	FlyGrantSeconds = 300, -- an admin can let one other player fly for this long, then grant again
+	FlySpeed = 80, -- studs/sec while flying
+	IconId = "", -- admin HUD badge image (fill once uploaded); falls back to a star until then
+}
+
 return Config

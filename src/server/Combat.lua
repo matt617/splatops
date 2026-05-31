@@ -284,7 +284,9 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 				Combat.reload(shooterPlayer)
 				return
 			end
-			tool:SetAttribute("Ammo", ammo - 1)
+			if shooterPlayer:GetAttribute("IsAdmin") ~= true then -- admins never run out of paint
+				tool:SetAttribute("Ammo", ammo - 1)
+			end
 		end
 
 		local character = shooterPlayer.Character

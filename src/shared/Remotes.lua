@@ -68,4 +68,7 @@ Remotes.MatchClock = remote("MatchClock", "RemoteEvent") -- match time remaining
 Remotes.CreateLobby = remote("CreateLobby", "RemoteFunction")
 Remotes.JoinLobby = remote("JoinLobby", "RemoteFunction")
 
+-- Admin
+Remotes.GrantFly = remote("GrantFly", "RemoteEvent") -- admin asks the server to let a player fly
+
 return Remotes
