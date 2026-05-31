@@ -170,6 +170,16 @@ do
 	d.Parent = photo
 end
 
+-- second hidden dog portrait under the WEST watchtower deck (the other one is under the east)
+do
+	block(fCover, "DogPortraitFrame2", Vector3.new(-50, 8.95, 0), Vector3.new(4.4, 0.2, 4.4), Color3.fromRGB(28, 28, 32), Enum.Material.SmoothPlastic)
+	local photo = block(fCover, "DogPortrait2", Vector3.new(-50, 8.83, 0), Vector3.new(4, 0.15, 4), Color3.fromRGB(18, 18, 22), Enum.Material.SmoothPlastic)
+	local d = Instance.new("Decal")
+	d.Texture = "rbxassetid://89437952628120"
+	d.Face = Enum.NormalId.Bottom
+	d.Parent = photo
+end
+
 -- teams (names match Config.Teams[*].Name so the combat team checks line up)
 local function ensureTeam(name: string, color: Color3)
 	local t = Teams:FindFirstChild(name)

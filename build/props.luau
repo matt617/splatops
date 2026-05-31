@@ -135,7 +135,7 @@ local cover = arena:FindFirstChild("Cover")
 if cover then
 	-- ===== watchtowers: model is the visual; you stand on an invisible floor at the platform
 	-- height (under the roof), and a wood truss tops out there so you cannot overshoot to the roof.
-	local platformY = 7.5 -- standing height inside the tower; tune if you stand too high/low
+	local platformY = 9.1 -- standing height inside the tower (scales with the 16-stud model); tune if off
 	for _, deck in cover:GetChildren() do
 		if deck.Name == "TowerDeck" and deck:IsA("BasePart") then
 			local cx, cz = deck.Position.X, deck.Position.Z
@@ -163,7 +163,7 @@ if cover then
 			truss.Color = Color3.fromRGB(120, 95, 60)
 			truss.CFrame = CFrame.new(cx + 4.75 * s, (platformY + 1) / 2, cz)
 			truss.Parent = propsFolder
-			place("watchtower", Vector3.new(cx, 0, cz), 13, 5.63, 0, true, false, false, cx > 0 and BLUE or RED, STEEL)
+			place("watchtower", Vector3.new(cx, 0, cz), 16, 5.63, 0, true, false, false, cx > 0 and BLUE or RED, STEEL)
 		end
 	end
 
