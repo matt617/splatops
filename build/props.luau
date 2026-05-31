@@ -12,6 +12,8 @@ local InsertService = game:GetService("InsertService")
 
 local RED = Color3.fromRGB(220, 50, 50)
 local BLUE = Color3.fromRGB(50, 100, 220)
+local WOOD = Color3.fromRGB(125, 96, 56)
+local OLIVE = Color3.fromRGB(106, 112, 78)
 
 local IDS = {
 	tower = 103302952105387,
@@ -108,9 +110,9 @@ for _, base in arena:GetChildren() do
 		if tip and tip:IsA("BasePart") then
 			hideKeepCollision(tip)
 		end
-		-- face the field (toward x=0)
-		local yaw = tower.Position.X > 0 and 180 or 0
-		place("tower", Vector3.new(tower.Position.X, 0, tower.Position.Z), 32, 8.59, yaw, true, false, false, team)
+		-- face the field, and pull the visual in off the back wall (the hitbox stays put)
+		local sign = tower.Position.X > 0 and 1 or -1
+		place("tower", Vector3.new(tower.Position.X - sign * 8, 0, tower.Position.Z), 32, 8.59, tower.Position.X > 0 and 180 or 0, true, false, false, team)
 	end
 end
 
@@ -133,12 +135,44 @@ if cover then
 		end
 	end
 
-	-- ===== base crates: model visual over the invisible gray cube collider =====
+	-- ===== base crates: a random stack of crate models per spot (the stack IS the cover) =====
 	for _, crate in cover:GetChildren() do
 		if crate.Name == "Crate" and crate:IsA("BasePart") then
 			local size = crate.Size.X
-			hideKeepCollision(crate) -- gray cube stays the collider/cover
-			place("crate", Vector3.new(crate.Position.X, crate.Position.Y - size / 2, crate.Position.Z), size, 2.98, 0, false, false, false, nil)
+			crate.Transparency = 1
+			crate.CanCollide = false -- the visible stack provides the collision now
+			for _, c in crate:GetChildren() do
+				if c:IsA("Decal") or c:IsA("Texture") then
+					c.Transparency = 1
+				elseif c:IsA("SurfaceGui") then
+					c.Enabled = false
+				end
+			end
+			local footprint = math.clamp(size * 0.78, 2.6, 4.2)
+			local crateH = 0.96 * (footprint / 2.98)
+			local stack = math.random(1, 3) -- random tall vs short
+			local groundY = crate.Position.Y - size / 2
+			for i = 1, stack do
+				local m = loadModel("crate")
+				if m then
+					m.WorldPivot = m:GetBoundingBox()
+					m:ScaleTo(footprint / 2.98)
+					local jx = (math.random() - 0.5) * 0.5
+					local jz = (math.random() - 0.5) * 0.5
+					local yaw = math.random(-14, 14) + (i % 2 == 0 and 90 or 0) -- cross-stack
+					m:PivotTo(CFrame.new(crate.Position.X + jx, groundY + crateH * (i - 0.5), crate.Position.Z + jz) * CFrame.Angles(0, math.rad(yaw), 0))
+					for _, d in m:GetDescendants() do
+						if d:IsA("BasePart") then
+							d.Anchored = true
+							d.CanCollide = true
+							d.CanQuery = true
+							d.CastShadow = false
+							d.Color = string.find(string.lower(d.Name), "team") and OLIVE or WOOD
+						end
+					end
+					m.Parent = propsFolder
+				end
+			end
 		end
 	end
 end
@@ -150,22 +184,39 @@ for _, base in arena:GetChildren() do
 		hideKeepCollision(qm) -- keeps the shop ProximityPrompt
 		local team = base.Name == "RedBase" and RED or (base.Name == "BlueBase" and BLUE or nil)
 		local yaw = qm.Position.X > 0 and 180 or 0
-		place("kiosk", Vector3.new(qm.Position.X, 0, qm.Position.Z), 4.5, 2.39, yaw, false, true, true, team)
+		local k = place("kiosk", Vector3.new(qm.Position.X, 0, qm.Position.Z), 6.5, 2.39, yaw, false, true, true, team)
+		if k then
+			-- color the bare mesh: olive base, wood crates, dark screen, team-colored sign
+			for _, d in k:GetDescendants() do
+				if d:IsA("BasePart") then
+					local n = string.lower(d.Name)
+					if string.find(n, "team") then
+						d.Color = team or OLIVE
+					elseif string.find(n, "screen") then
+						d.Color = Color3.fromRGB(30, 34, 42)
+					elseif string.find(n, "crate") or string.find(n, "wood") or string.find(n, "sandbag") then
+						d.Color = WOOD
+					else
+						d.Color = OLIVE
+					end
+				end
+			end
+		end
 	end
 end
 
 -- ===== extra cover dressing (solid props, symmetric) =====
--- {key, x, z, targetHeight, tallExtent, yaw}
-local function coverPair(key, x, z, h, ext, yaw)
-	place(key, Vector3.new(x, 0, z), h, ext, yaw, false, true, true, nil)
-	place(key, Vector3.new(-x, 0, z), h, ext, yaw, false, true, true, nil)
+-- {key, x, z, targetHeight, tallExtent, yaw, needsUpright, tint}
+local function coverPair(key, x, z, h, ext, yaw, upright, tint)
+	place(key, Vector3.new(x, 0, z), h, ext, yaw, upright, true, true, tint)
+	place(key, Vector3.new(-x, 0, z), h, ext, yaw, upright, true, true, tint)
 end
-coverPair("drum", 100, 28, 3.0, 1.22, 0)
-coverPair("drum", 100, -28, 3.0, 1.22, 0)
-coverPair("concrete", 18, 34, 1.9, 1.10, 90)
-coverPair("concrete", 18, -34, 1.9, 1.10, 90)
-coverPair("hesco", 70, 22, 2.0, 1.04, 0)
-coverPair("hesco", 70, -22, 2.0, 1.04, 0)
-coverPair("sandbag", 38, 0, 1.2, 0.52, 0)
+coverPair("drum", 100, 28, 3.0, 1.22, 0, true, OLIVE) -- drum stands up; body tinted olive
+coverPair("drum", 100, -28, 3.0, 1.22, 0, true, OLIVE)
+coverPair("concrete", 18, 34, 1.9, 1.10, 90, false, nil)
+coverPair("concrete", 18, -34, 1.9, 1.10, 90, false, nil)
+coverPair("hesco", 70, 22, 2.0, 1.04, 0, false, nil)
+coverPair("hesco", 70, -22, 2.0, 1.04, 0, false, nil)
+coverPair("sandbag", 38, 0, 1.2, 0.52, 0, false, nil)
 
 print("[Props] placed: towers, watchtowers, crates, kiosks, cover dressing")
