@@ -1,24 +1,26 @@
 -- Places the uploaded 3D prop models into the arena over the gray-box, so gameplay never depends
--- on the meshes. Comms towers and quartermaster kiosks keep their gray-box parts as the functional
--- layer (invisible but still the hitbox / prompt holder); watchtowers keep an invisible solid deck
--- plus a climbable truss ladder; base crates become solid stacks; standalone cover (drum, sandbag,
--- concrete, hesco) is placed in spots clear of the lane dividers. Every part is colored from its
--- name so props read with intended colors without textures. Re-runnable. Run after arena_blockout.
+-- on the meshes. Comms towers and kiosks keep their gray-box parts as the functional layer
+-- (invisible hitbox / prompt holder); watchtowers keep an invisible solid deck plus a climbable
+-- truss ladder; base crates become solid stacks; standalone cover sits clear of the lane dividers.
+-- Each part gets a color AND a real Roblox material from its name (wood, metal, concrete, sand,
+-- fabric, glass) so the props look textured without any uploads. Re-runnable. Run after arena_blockout.
 
 local Workspace = game:GetService("Workspace")
 local InsertService = game:GetService("InsertService")
 
 local RED = Color3.fromRGB(220, 50, 50)
 local BLUE = Color3.fromRGB(50, 100, 220)
-local STEEL = Color3.fromRGB(74, 78, 86)
-local DARKMETAL = Color3.fromRGB(46, 49, 55)
+local STEEL = Color3.fromRGB(96, 100, 108)
+local DARKMETAL = Color3.fromRGB(54, 57, 64)
 local BLACK = Color3.fromRGB(26, 26, 30)
-local WOOD = Color3.fromRGB(125, 96, 56)
+local WOOD = Color3.fromRGB(150, 110, 64)
 local OLIVE = Color3.fromRGB(106, 112, 78)
-local CONCRETE = Color3.fromRGB(150, 154, 160)
-local TAN = Color3.fromRGB(198, 178, 134)
+local CONCRETE = Color3.fromRGB(158, 160, 165)
+local TAN = Color3.fromRGB(205, 184, 138)
 local GLASS = Color3.fromRGB(120, 170, 235)
 local BEACON = Color3.fromRGB(255, 150, 40)
+
+local M = Enum.Material
 
 local IDS = {
 	tower = 103302952105387, watchtower = 133320127977802, crate = 136790839484466, drum = 123891449640864,
@@ -67,30 +69,44 @@ local function paletteColor(name, team, fallback)
 	return fallback
 end
 
--- color override: nil uses the name palette; otherwise force every part to `force`
-local function finalize(model, collide, query, team, fallback, force)
+local function paletteMaterial(name)
+	local n = string.lower(name)
+	if has(n, "glass") or has(n, "lens") then return M.Glass end
+	if has(n, "beacon") or has(n, "lamp") then return M.Neon end
+	if has(n, "screen") then return M.SmoothPlastic end
+	if has(n, "wood") or has(n, "crate") or has(n, "plank") or has(n, "timber") then return M.WoodPlanks end
+	if has(n, "sand") or has(n, "burlap") or has(n, "gabion") then return M.Sand end
+	if has(n, "concrete") or has(n, "stone") or has(n, "earth") then return M.Concrete end
+	if has(n, "canvas") or has(n, "fabric") then return M.Fabric end
+	if has(n, "rubber") then return M.SmoothPlastic end
+	if has(n, "dish") or has(n, "antenna") or has(n, "detail") then return M.Metal end
+	return M.Metal -- structural / unnamed parts read as metal
+end
+
+-- force overrides a single color/material onto every part (for props whose parts are not
+-- descriptively named, like the bare crates and sandbags)
+local function finalize(model, collide, query, team, fallback, force, forceMat)
 	for _, d in model:GetDescendants() do
 		if d:IsA("BasePart") then
 			d.Anchored = true
 			d.CanCollide = collide
 			d.CanQuery = query
 			d.CastShadow = false
-			local n = string.lower(d.Name)
 			d.Color = force or paletteColor(d.Name, team, fallback)
-			if has(n, "beacon") or has(n, "lamp") then d.Material = Enum.Material.Neon end
+			d.Material = forceMat or paletteMaterial(d.Name)
 		end
 	end
 	model.Parent = propsFolder
 end
 
-local function place(key, basePos, targetHeight, tallExtent, yawDeg, needsUpright, collide, query, team, fallback, force)
+local function place(key, basePos, targetHeight, tallExtent, yawDeg, needsUpright, collide, query, team, fallback, force, forceMat)
 	local model = loadModel(key)
 	if not model then return nil end
 	model.WorldPivot = model:GetBoundingBox()
 	model:ScaleTo(targetHeight / tallExtent)
 	local rot = CFrame.Angles(0, math.rad(yawDeg), 0) * (needsUpright and UPRIGHT or CFrame.identity)
 	model:PivotTo(CFrame.new(basePos + Vector3.new(0, targetHeight / 2, 0)) * rot)
-	finalize(model, collide, query, team, fallback, force)
+	finalize(model, collide, query, team, fallback, force, forceMat)
 	return model
 end
 
@@ -101,7 +117,7 @@ local function hide(part)
 	end
 end
 
--- ===== comms towers (visual over invisible hitbox, pulled off the back wall) =====
+-- ===== comms towers =====
 for _, base in arena:GetChildren() do
 	local tower = base:FindFirstChild("CommsTower")
 	if tower and tower:IsA("BasePart") then
@@ -117,7 +133,9 @@ end
 
 local cover = arena:FindFirstChild("Cover")
 if cover then
-	-- ===== watchtowers: invisible solid deck + climbable truss ladder, model as visual =====
+	-- ===== watchtowers: model is the visual; you stand on an invisible floor at the platform
+	-- height (under the roof), and a wood truss tops out there so you cannot overshoot to the roof.
+	local platformY = 7.5 -- standing height inside the tower; tune if you stand too high/low
 	for _, deck in cover:GetChildren() do
 		if deck.Name == "TowerDeck" and deck:IsA("BasePart") then
 			local cx, cz = deck.Position.X, deck.Position.Z
@@ -126,22 +144,30 @@ if cover then
 				if p:IsA("BasePart") and (p.Name == "TowerLeg" or p.Name == "TowerRail" or p.Name == "TowerRamp" or p.Name == "TowerDeck") then
 					if math.abs(p.Position.X - cx) < 14 and math.abs(p.Position.Z - cz) < 14 then
 						p.Transparency = 1
-						if p.Name == "TowerRamp" then p.CanCollide = false end -- ramp replaced by the truss
+						p.CanCollide = false -- the invisible floor below provides footing now
 					end
 				end
 			end
+			local floor = Instance.new("Part")
+			floor.Size = Vector3.new(6, 0.5, 6)
+			floor.Anchored = true
+			floor.CanCollide = true
+			floor.Transparency = 1
+			floor.CFrame = CFrame.new(cx, platformY, cz)
+			floor.Parent = propsFolder
 			local truss = Instance.new("TrussPart")
-			truss.Size = Vector3.new(2, 10, 2)
+			truss.Size = Vector3.new(2, platformY + 1, 2)
 			truss.Anchored = true
 			truss.CanCollide = true
-			truss.Color = STEEL
-			truss.CFrame = CFrame.new(cx + 4.75 * s, 5, cz)
+			truss.Material = M.WoodPlanks
+			truss.Color = Color3.fromRGB(120, 95, 60)
+			truss.CFrame = CFrame.new(cx + 4.75 * s, (platformY + 1) / 2, cz)
 			truss.Parent = propsFolder
 			place("watchtower", Vector3.new(cx, 0, cz), 13, 5.63, 0, true, false, false, cx > 0 and BLUE or RED, STEEL)
 		end
 	end
 
-	-- ===== base crates: chunky 3-4 high cross-stacks (the stack IS the cover) =====
+	-- ===== base crates: chunky wood stacks =====
 	for _, crate in cover:GetChildren() do
 		if crate.Name == "Crate" and crate:IsA("BasePart") then
 			local size = crate.Size.X
@@ -163,7 +189,7 @@ if cover then
 					local jz = (math.random() - 0.5) * 0.5
 					local yaw = math.random(-14, 14) + (i % 2 == 0 and 90 or 0)
 					m:PivotTo(CFrame.new(crate.Position.X + jx, groundY + crateH * (i - 0.5), crate.Position.Z + jz) * CFrame.Angles(0, math.rad(yaw), 0))
-					finalize(m, true, true, OLIVE, WOOD)
+					finalize(m, true, true, OLIVE, WOOD, WOOD, M.WoodPlanks) -- force wood look
 					m.Parent = propsFolder
 				end
 			end
@@ -181,19 +207,19 @@ for _, base in arena:GetChildren() do
 	end
 end
 
--- ===== standalone cover, in spots clear of the lane dividers (dividers sit at x=+-21,+-63, z=+-22) =====
-local function coverPair(key, x, z, h, ext, yaw, upright, fallback)
-	place(key, Vector3.new(x, 0, z), h, ext, yaw, upright, true, true, nil, fallback)
-	place(key, Vector3.new(-x, 0, z), h, ext, yaw, upright, true, true, nil, fallback)
+-- ===== standalone cover, clear of dividers (x=+-21,+-63, z=+-22) =====
+local function coverPair(key, x, z, h, ext, yaw, upright, fallback, force, forceMat)
+	place(key, Vector3.new(x, 0, z), h, ext, yaw, upright, true, true, nil, fallback, force, forceMat)
+	place(key, Vector3.new(-x, 0, z), h, ext, yaw, upright, true, true, nil, fallback, force, forceMat)
 end
-coverPair("drum", 100, 30, 4.5, 1.22, 0, true, STEEL)
-coverPair("drum", 100, -30, 4.5, 1.22, 0, true, STEEL)
-coverPair("concrete", 45, 14, 4.0, 1.10, 90, false, CONCRETE)
-coverPair("concrete", 45, -14, 4.0, 1.10, 90, false, CONCRETE)
-coverPair("hesco", 90, 18, 4.0, 1.04, 0, false, TAN)
-coverPair("hesco", 90, -18, 4.0, 1.04, 0, false, TAN)
+coverPair("drum", 100, 30, 4.5, 1.22, 0, true, STEEL, nil, M.Metal)
+coverPair("drum", 100, -30, 4.5, 1.22, 0, true, STEEL, nil, M.Metal)
+coverPair("concrete", 45, 14, 4.0, 1.10, 90, false, CONCRETE, CONCRETE, M.Concrete)
+coverPair("concrete", 45, -14, 4.0, 1.10, 90, false, CONCRETE, CONCRETE, M.Concrete)
+coverPair("hesco", 90, 18, 4.0, 1.04, 0, false, TAN, TAN, M.Sand)
+coverPair("hesco", 90, -18, 4.0, 1.04, 0, false, TAN, TAN, M.Sand)
 
--- sandbags: stacked tapered wall, forced tan
+-- sandbags: tapered tan wall, forced sand material
 local function sandbagWall(x, z)
 	local sc = 9 / 4.25
 	local rowH = 0.52 * sc
@@ -204,7 +230,7 @@ local function sandbagWall(x, z)
 				m.WorldPivot = m:GetBoundingBox()
 				m:ScaleTo(sc * (1 - r * 0.07))
 				m:PivotTo(CFrame.new(side * x, rowH * (r + 0.5), z) * CFrame.Angles(0, math.rad((r % 2 == 0) and 0 or 6), 0))
-				finalize(m, true, true, nil, TAN, TAN) -- force tan, no green
+				finalize(m, true, true, nil, TAN, TAN, M.Sand)
 				m.Parent = propsFolder
 			end
 		end
@@ -213,4 +239,4 @@ end
 sandbagWall(42, 0)
 sandbagWall(16, 0)
 
-print("[Props] placed: towers, climbable watchtowers, crate stacks, kiosks, cover clear of dividers")
+print("[Props] placed with name-based color + Roblox materials")
