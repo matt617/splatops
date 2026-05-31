@@ -137,18 +137,28 @@ do
 	d.Parent = armorySign
 end
 local rackWeapons = { "AssaultMarker", "Scattergun", "ReconMarker", "Mortar" }
+-- cartoony weapon cards shown on each mount (Right face, facing the room)
+local rackCards = {
+	AssaultMarker = "rbxassetid://139159382174571",
+	ReconMarker = "rbxassetid://138084935662722",
+	Scattergun = "rbxassetid://86080782756370",
+	Mortar = "rbxassetid://128414709052987",
+}
 for i, weaponName in ipairs(rackWeapons) do
 	local z = 258 + (i - 1) * 6.5
 	local mount = Instance.new("Part")
 	mount.Name = "Mount_" .. weaponName
 	mount.Anchored = true
-	mount.Size = Vector3.new(0.6, 3.2, 4.4)
-	mount.CFrame = CFrame.new(-49.7, 4.5, z)
+	mount.Size = Vector3.new(0.6, 3.6, 5.2)
+	mount.CFrame = CFrame.new(-49.7, 4.7, z)
 	mount.Color = Color3.fromRGB(40, 43, 48)
 	mount.Material = Enum.Material.Metal
 	mount:SetAttribute("Weapon", weaponName) -- WeaponRackService reads this to wire the prompt
 	mount.Parent = rack
-	label(mount, Enum.NormalId.Right, weaponName, Color3.fromRGB(210, 220, 235))
+	local card = Instance.new("Decal")
+	card.Texture = rackCards[weaponName]
+	card.Face = Enum.NormalId.Right -- Right (+X) faces into the room
+	card.Parent = mount
 end
 -- floor cue pointing players at the rack
 local cue = block("ArmoryCue", Vector3.new(-30, 0.05, 258), Vector3.new(14, 0.1, 4), Color3.fromRGB(196, 158, 70), Enum.Material.Neon)
