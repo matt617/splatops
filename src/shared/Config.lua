@@ -220,9 +220,16 @@ Config.VFX = {
 	-- Fill PaintSplatterImages with the uploaded asset ids; with none set, splats fall back to the
 	-- plain disc. 1 to MarksPerHit decals spawn per hit, each a random image/rotation/size.
 	PaintSplatterImages = {
-		-- "rbxassetid://...", x8
+		"rbxassetid://103190875348978",
+		"rbxassetid://102882379151953",
+		"rbxassetid://115401322885775",
+		"rbxassetid://86256540759573",
+		"rbxassetid://115106813588253",
+		"rbxassetid://139407973278090",
+		"rbxassetid://138243015157213",
+		"rbxassetid://83113244165417",
 	},
-	PaintDropletImage = "", -- single droplet, used for the impact particle burst
+	PaintDropletImage = "rbxassetid://134349679205486", -- single droplet, used for the impact particle burst
 	PaintMarksPerHit = 3, -- up to this many overlapping marks per confirmed hit
 	PaintSplatMaxOnScreen = 120, -- recycle the oldest beyond this, to stay light on iPad
 }
