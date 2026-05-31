@@ -161,7 +161,7 @@ if cover then
 			truss.CanCollide = true
 			truss.Material = M.WoodPlanks
 			truss.Color = Color3.fromRGB(120, 95, 60)
-			truss.CFrame = CFrame.new(cx + 4.75 * s, (platformY + 1) / 2, cz)
+			truss.CFrame = CFrame.new(cx, (platformY + 1) / 2, cz - 4.25) -- -Z side, matching where these were hand-placed
 			truss.Parent = propsFolder
 			place("watchtower", Vector3.new(cx, 0, cz), 16, 5.63, 0, true, false, false, cx > 0 and BLUE or RED, STEEL)
 		end
