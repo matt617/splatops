@@ -245,7 +245,7 @@ Config.Admin = {
 	},
 	FlyGrantSeconds = 300, -- an admin can let one other player fly for this long, then grant again
 	FlySpeed = 80, -- studs/sec while flying
-	IconId = "", -- admin HUD badge image (fill once uploaded); falls back to a star until then
+	IconId = "rbxassetid://102774377713516", -- admin HUD badge image
 }
 
 return Config
