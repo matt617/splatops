@@ -23,15 +23,18 @@ gui.Name = "TutorialGuide"
 gui.ResetOnSpawn = false
 gui.Parent = playerGui
 
+-- docked bottom-left above the controls card, so it never covers the targets
 local prompt = Instance.new("TextLabel")
-prompt.AnchorPoint = Vector2.new(0.5, 0)
-prompt.Position = UDim2.new(0.5, 0, 0, 92)
-prompt.Size = UDim2.fromOffset(440, 48)
+prompt.AnchorPoint = Vector2.new(0, 1)
+prompt.Position = UDim2.new(0, 16, 1, -226)
+prompt.Size = UDim2.fromOffset(248, 44)
 prompt.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 prompt.BackgroundTransparency = 0.2
 prompt.TextColor3 = Color3.fromRGB(255, 230, 90)
 prompt.Font = Enum.Font.GothamBold
 prompt.TextScaled = true
+prompt.TextWrapped = true
+prompt.TextXAlignment = Enum.TextXAlignment.Left
 prompt.Text = ""
 prompt.Parent = gui
 local corner = Instance.new("UICorner")
@@ -43,10 +46,11 @@ ppad.PaddingRight = UDim.new(0, 14)
 ppad.Parent = prompt
 
 local counter = Instance.new("TextLabel")
-counter.AnchorPoint = Vector2.new(0.5, 0)
-counter.Position = UDim2.new(0.5, 0, 0, 146)
-counter.Size = UDim2.fromOffset(280, 30)
+counter.AnchorPoint = Vector2.new(0, 1)
+counter.Position = UDim2.new(0, 16, 1, -196)
+counter.Size = UDim2.fromOffset(248, 24)
 counter.BackgroundTransparency = 1
+counter.TextXAlignment = Enum.TextXAlignment.Left
 counter.TextColor3 = Color3.fromRGB(120, 210, 255)
 counter.Font = Enum.Font.GothamBlack
 counter.TextScaled = true
