@@ -64,7 +64,7 @@ local function spawnDisc(position: Vector3, normal: Vector3, color: Color3)
 end
 
 -- a short burst of paint droplets flying off the surface on impact
-local function spawnBurst(position: Vector3, normal: Vector3, color: Color3)
+local function spawnBurst(position: Vector3, normal: Vector3, color: Color3, scale: number)
 	if Config.VFX.PaintDropletImage == "" then
 		return
 	end
@@ -82,11 +82,11 @@ local function spawnBurst(position: Vector3, normal: Vector3, color: Color3)
 	emitter.Texture = Config.VFX.PaintDropletImage
 	emitter.Color = ColorSequence.new(color)
 	emitter.Lifetime = NumberRange.new(0.3, 0.6)
-	emitter.Speed = NumberRange.new(7, 13)
+	emitter.Speed = NumberRange.new(7 * scale, 13 * scale)
 	emitter.SpreadAngle = Vector2.new(45, 45)
 	emitter.Rotation = NumberRange.new(0, 360)
 	emitter.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.6),
+		NumberSequenceKeypoint.new(0, 0.6 * scale),
 		NumberSequenceKeypoint.new(1, 0.05),
 	})
 	emitter.Acceleration = Vector3.new(0, -35, 0) -- gravity, so droplets arc down
@@ -95,11 +95,13 @@ local function spawnBurst(position: Vector3, normal: Vector3, color: Color3)
 	emitter.Parent = emitterPart
 
 	emitterPart.Parent = getContainer()
-	emitter:Emit(math.random(8, 14))
+	emitter:Emit(math.random(8, 14) * math.ceil(scale))
 	Debris:AddItem(emitterPart, 1)
 end
 
-function PaintSplat.spawn(position: Vector3, normal: Vector3, color: Color3)
+-- scale > 1 paints a bigger, denser blast (mortar splash). Default 1 = normal hit.
+function PaintSplat.spawn(position: Vector3, normal: Vector3, color: Color3, scale: number?)
+	local mult = scale or 1
 	local images = Config.VFX.PaintSplatterImages
 	if #images == 0 then
 		spawnDisc(position, normal, color)
@@ -107,8 +109,12 @@ function PaintSplat.spawn(position: Vector3, normal: Vector3, color: Color3)
 	end
 
 	local t1, t2 = tangents(normal)
-	local base = Config.VFX.PaintSplatterSizeStuds
+	local base = Config.VFX.PaintSplatterSizeStuds * mult
 	local marks = math.random(1, math.max(1, Config.VFX.PaintMarksPerHit))
+	if mult > 1 then
+		-- a blast always paints the full set, plus extra scatter
+		marks = Config.VFX.PaintMarksPerHit + 2
+	end
 	for i = 1, marks do
 		local size = base * (0.6 + math.random() * 0.9)
 		-- first mark is centered; the rest scatter a little around the impact
@@ -138,7 +144,7 @@ function PaintSplat.spawn(position: Vector3, normal: Vector3, color: Color3)
 		Debris:AddItem(part, Config.VFX.PaintSplatterDecalDurationSeconds)
 	end
 
-	spawnBurst(position, normal, color)
+	spawnBurst(position, normal, color, mult)
 end
 
 return PaintSplat
