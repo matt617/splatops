@@ -28,6 +28,10 @@ Combat.Tagged = Instance.new("BindableEvent")
 -- (shooter?, targetPart, hitPosition). The practice range listens to drive the counter.
 Combat.PracticeTargetHit = Instance.new("BindableEvent")
 
+-- fired when a shot lands on an exploding paint drum (a part tagged "PaintDrum"):
+-- (shooter?, drumPart, hitPosition). PaintDrums.server.lua listens and runs the burst.
+Combat.DrumHit = Instance.new("BindableEvent")
+
 local DEFAULT_WEAPON = Config.Weapons.AssaultMarker -- used by the nil-player test harness
 local MAX_HITS = Config.Player.MaxHits
 
@@ -256,6 +260,11 @@ local function applySplash(center: Vector3, radius: number, damage: number, pain
 	end
 end
 
+-- Public splash, reused by the paint drums. Same rules as the mortar splash.
+function Combat.splash(center: Vector3, radius: number, damage: number, paintColor: Color3, shooterPlayer: Player?)
+	applySplash(center, radius, damage, paintColor, shooterPlayer)
+end
+
 -- Entry point for a fired shot. shooterPlayer is nil when the test harness drives this.
 function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: Vector3)
 	if Tower.isMatchOver() then
@@ -335,6 +344,10 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 				if shooterPlayer and CollectionService:HasTag(result.Instance, "DogPortrait") then
 					Economy.set(shooterPlayer, 0)
 					Remotes.DogShot:FireClient(shooterPlayer)
+				end
+				-- exploding paint drums: the drum service runs the burst
+				if CollectionService:HasTag(result.Instance, "PaintDrum") then
+					Combat.DrumHit:Fire(shooterPlayer, result.Instance, result.Position)
 				end
 			end
 		end

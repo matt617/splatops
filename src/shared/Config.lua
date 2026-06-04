@@ -43,6 +43,17 @@ Config.Tower = {
 }
 
 -- ============================================================================
+-- PAINT DRUMS (the shootable exploding barrels around the arena)
+-- ============================================================================
+
+Config.Drums = {
+	SplashRadiusStuds = 14, -- anyone this close gets painted when a drum bursts
+	SplashDamage = 1,
+	RespawnSeconds = 30, -- the drum reappears after this
+	VFXScale = 3.5, -- burst splats render this many times bigger than a normal hit
+}
+
+-- ============================================================================
 -- ECONOMY
 -- ============================================================================
 
