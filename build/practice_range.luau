@@ -140,7 +140,7 @@ local rackWeapons = { "AssaultMarker", "Scattergun", "ReconMarker", "Mortar" }
 -- cartoony weapon cards shown on each mount (Right face, facing the room)
 local rackCards = {
 	AssaultMarker = "rbxassetid://139159382174571",
-	ReconMarker = "rbxassetid://138084935662722",
+	ReconMarker = "rbxassetid://121820949874382",
 	Scattergun = "rbxassetid://86080782756370",
 	Mortar = "rbxassetid://128414709052987",
 }
