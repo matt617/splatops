@@ -66,6 +66,7 @@ Remotes.RequestStart = remote("RequestStart", "RemoteEvent") -- client asks to s
 Remotes.ConfirmStart = remote("ConfirmStart", "RemoteEvent") -- server asks to confirm a short-handed start
 Remotes.MatchStats = remote("MatchStats", "RemoteEvent") -- end-of-match scoreboard (winner, rows, intermission)
 Remotes.MatchClock = remote("MatchClock", "RemoteEvent") -- match time remaining, in seconds
+Remotes.TowerAlert = remote("TowerAlert", "RemoteEvent") -- tower health stage changed (ownerShort, stage)
 
 -- Lobby
 Remotes.CreateLobby = remote("CreateLobby", "RemoteFunction")

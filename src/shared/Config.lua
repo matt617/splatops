@@ -262,6 +262,15 @@ Config.Sounds = {
 	Streak = "rbxasset://sounds/flashbulb.wav", -- streak banner sting
 	DogShot = "rbxasset://sounds/glassbreak.wav", -- you splatted Luna
 	Purchase = "rbxasset://sounds/button.wav", -- shop buy
+	TowerWarning = "rbxasset://sounds/flashbulb.wav", -- your tower hit half health
+	TowerCritical = "rbxasset://sounds/bass.wav", -- your tower is nearly down
+	TowerAlarm = "", -- looping siren at the tower while critical; fill with an uploaded id
+}
+
+-- tower drama thresholds (fraction of max health)
+Config.TowerDrama = {
+	WarningAt = 0.5, -- smoke and sparks start
+	CriticalAt = 0.25, -- red strobe and under-attack alerts
 }
 
 -- ============================================================================
