@@ -55,6 +55,7 @@ Remotes.PurchaseItem = remote("PurchaseItem", "RemoteFunction")
 Remotes.CoinsChanged = remote("CoinsChanged", "RemoteEvent")
 Remotes.OpenShop = remote("OpenShop", "RemoteEvent") -- server tells a client to open the shop
 Remotes.DogShot = remote("DogShot", "RemoteEvent") -- you splatted a hidden dog portrait, coins gone
+Remotes.PowerUpEvent = remote("PowerUpEvent", "RemoteEvent") -- mid power-up spawned / claimed announcements
 
 -- Match flow
 Remotes.MatchStarting = remote("MatchStarting", "RemoteEvent")

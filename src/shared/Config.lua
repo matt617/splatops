@@ -54,6 +54,38 @@ Config.Drums = {
 }
 
 -- ============================================================================
+-- POWER-UPS (timed pickup where the lanes meet)
+-- ============================================================================
+
+Config.PowerUps = {
+	SpawnX = 0, -- mid lane convergence; ground height found by raycast
+	SpawnZ = 0,
+	FirstSpawnSeconds = 20, -- after the match starts
+	RespawnSeconds = 45, -- after one is claimed
+	Types = {
+		GoldenPaintball = {
+			DisplayName = "Golden Paintball",
+			DurationSeconds = 20,
+			SplatScale = 2.5, -- your hits paint giant splats while active
+			BonusCoinsPerTag = 25, -- extra coins on every tag while active
+			Color = Color3.fromRGB(255, 200, 40),
+		},
+		SpeedCleats = {
+			DisplayName = "Speed Cleats",
+			DurationSeconds = 15,
+			WalkSpeedMultiplier = 1.35,
+			Color = Color3.fromRGB(70, 220, 255),
+		},
+		PaintBomb = {
+			DisplayName = "Paint Bomb",
+			RadiusStuds = 16, -- bursts the moment you grab it
+			Damage = 1,
+			Color = Color3.fromRGB(235, 80, 220),
+		},
+	},
+}
+
+-- ============================================================================
 -- ECONOMY
 -- ============================================================================
 

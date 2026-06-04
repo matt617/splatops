@@ -334,8 +334,13 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 			if hitModel and hitModel:FindFirstChildOfClass("Humanoid") then
 				Combat.applyHit(hitModel, result.Position, result.Normal, paintColor, shooterPlayer, damage)
 			else
-				-- splash weapons (mortar) paint a much bigger blast than a normal hit
-				PaintSplat.spawn(result.Position, result.Normal, paintColor, weapon.SplashVFXScale)
+				-- splash weapons (mortar) paint a much bigger blast than a normal hit, and the
+				-- Golden Paintball power-up makes every hit paint giant
+				local splatScale = weapon.SplashVFXScale or 1
+				if shooterPlayer and ((shooterPlayer:GetAttribute("BigSplatsUntil") :: number?) or 0) > os.clock() then
+					splatScale = math.max(splatScale, Config.PowerUps.Types.GoldenPaintball.SplatScale)
+				end
+				PaintSplat.spawn(result.Position, result.Normal, paintColor, splatScale)
 				-- lobby practice targets: no health, just a splat plus a counter ping
 				if CollectionService:HasTag(result.Instance, "PracticeTarget") then
 					Combat.PracticeTargetHit:Fire(shooterPlayer, result.Instance, result.Position)
