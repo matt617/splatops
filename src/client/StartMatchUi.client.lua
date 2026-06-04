@@ -26,7 +26,8 @@ gui.Parent = player:WaitForChild("PlayerGui")
 
 local startBtn = Instance.new("TextButton")
 startBtn.AnchorPoint = Vector2.new(0.5, 1)
-startBtn.Position = UDim2.new(0.5, 0, 1, -22)
+-- sits above the backpack hotbar so the weapon slots never cover it
+startBtn.Position = UDim2.new(0.5, 0, 1, -130)
 startBtn.Size = UDim2.fromOffset(240, 56)
 startBtn.BackgroundColor3 = Color3.fromRGB(70, 200, 100)
 startBtn.Text = "START MATCH"
