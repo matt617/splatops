@@ -190,6 +190,23 @@ if cover then
 					local yaw = math.random(-14, 14) + (i % 2 == 0 and 90 or 0)
 					m:PivotTo(CFrame.new(crate.Position.X + jx, groundY + crateH * (i - 0.5), crate.Position.Z + jz) * CFrame.Angles(0, math.rad(yaw), 0))
 					finalize(m, true, true, OLIVE, WOOD, WOOD, M.WoodPlanks) -- force wood look
+					-- the CrateBody mesh asset renders empty (gutted server-side at some point);
+					-- swap each body for a plain box Part so the crates survive a fresh import
+					for _, pt in m:GetDescendants() do
+						if pt.Name == "CrateBody" and pt:IsA("MeshPart") then
+							local box = Instance.new("Part")
+							box.Name = "CrateBody"
+							box.Anchored = true
+							box.CanCollide = pt.CanCollide
+							box.CanQuery = pt.CanQuery
+							box.Size = pt.Size
+							box.CFrame = pt.CFrame
+							box.Color = pt.Color
+							box.Material = M.WoodPlanks
+							box.Parent = pt.Parent
+							pt:Destroy()
+						end
+					end
 					m.Parent = propsFolder
 				end
 			end
@@ -198,12 +215,12 @@ if cover then
 end
 
 -- ===== quartermaster kiosks =====
+-- the imported kiosk model was an exploded multi-object scene; the stall is now part-built
+-- by build/quartermaster_stall.luau instead. Just keep the gray-box prompt holder hidden.
 for _, base in arena:GetChildren() do
 	local qm = base:FindFirstChild("Quartermaster")
 	if qm and qm:IsA("BasePart") then
 		hide(qm)
-		local team = base.Name == "RedBase" and RED or (base.Name == "BlueBase" and BLUE or nil)
-		place("kiosk", Vector3.new(qm.Position.X, 0, qm.Position.Z), 8.5, 2.39, qm.Position.X > 0 and 180 or 0, false, true, true, team, OLIVE)
 	end
 end
 
