@@ -73,5 +73,6 @@ Remotes.JoinLobby = remote("JoinLobby", "RemoteFunction")
 
 -- Admin
 Remotes.GrantFly = remote("GrantFly", "RemoteEvent") -- admin asks the server to let a player fly
+Remotes.AdminPowerUp = remote("AdminPowerUp", "RemoteEvent") -- admin gives themself a power-up effect
 
 return Remotes

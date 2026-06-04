@@ -283,6 +283,37 @@ local function refreshPanel()
 	end
 end
 
+-- ===== admin power-up buttons (stacked above GIVE FLY, bottom-right) =====
+local powerBtns: { TextButton } = {}
+do
+	local names = {}
+	for name in Config.PowerUps.Types do
+		table.insert(names, name)
+	end
+	table.sort(names)
+	for i, typeName in ipairs(names) do
+		local t = (Config.PowerUps.Types :: any)[typeName]
+		local b = Instance.new("TextButton")
+		b.AnchorPoint = Vector2.new(1, 1)
+		b.Position = UDim2.new(1, -16, 1, -184 - (i - 1) * 52)
+		b.Size = UDim2.fromOffset(150, 44)
+		b.BackgroundColor3 = t.Color
+		b.Text = string.upper(t.DisplayName)
+		b.TextColor3 = Color3.fromRGB(20, 20, 24)
+		b.Font = Enum.Font.GothamBlack
+		b.TextScaled = true
+		b.Visible = false
+		b.Parent = gui
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0, 10)
+		c.Parent = b
+		b.MouseButton1Click:Connect(function()
+			Remotes.AdminPowerUp:FireServer(typeName)
+		end)
+		table.insert(powerBtns, b)
+	end
+end
+
 -- the GIVE FLY launcher button (admin only), bottom-right
 local giveBtn = Instance.new("TextButton")
 giveBtn.AnchorPoint = Vector2.new(1, 1)
@@ -321,6 +352,9 @@ RunService.Heartbeat:Connect(function()
 	flyBtn.Visible = canFly()
 	upBtn.Visible = flying
 	downBtn.Visible = flying
+	for _, b in powerBtns do
+		b.Visible = admin
+	end
 
 	-- admin: show whether a guest is currently flying
 	if admin then

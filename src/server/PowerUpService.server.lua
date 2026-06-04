@@ -71,6 +71,17 @@ local function applyEffect(player: Player, typeName: string)
 	end
 end
 
+-- Admins can give themselves any power-up effect on demand. The server is the gate:
+-- only the Config admin list counts, never anything the client claims.
+Remotes.AdminPowerUp.OnServerEvent:Connect(function(player: Player, typeName: unknown)
+	if Config.Admin.UserIds[player.UserId] ~= true then
+		return
+	end
+	if type(typeName) == "string" and (CFG.Types :: any)[typeName] then
+		applyEffect(player, typeName)
+	end
+end)
+
 -- Golden Paintball pays bonus coins on every tag while active
 Combat.Tagged.Event:Connect(function(shooter: Player?, _target: Model, _victim: Player?)
 	if shooter and ((shooter:GetAttribute("BigSplatsUntil") :: number?) or 0) > os.clock() then
