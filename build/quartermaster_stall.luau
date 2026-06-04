@@ -19,6 +19,7 @@ local CARDS = {
 	"rbxassetid://121820949874382", -- recon
 	"rbxassetid://128414709052987", -- mortar
 }
+local REGISTER_ID = 74881674829702 -- cartoon cash register model, one per counter
 
 local DARK = Color3.fromRGB(24, 26, 32)
 local PANE = Color3.fromRGB(31, 34, 42)
@@ -80,6 +81,21 @@ local function signText(pt, text)
 	l.Font = Enum.Font.GothamBlack
 	l.TextScaled = true
 	l.Parent = sg
+end
+
+-- the cash register import, loaded once and cloned per stall
+local registerTemplate = nil
+do
+	local ok, asset = pcall(function()
+		return game:GetService("InsertService"):LoadAsset(REGISTER_ID)
+	end)
+	if ok and asset then
+		registerTemplate = asset:FindFirstChildOfClass("Model")
+		if registerTemplate then
+			registerTemplate.Parent = nil
+		end
+		asset:Destroy()
+	end
 end
 
 local function buildStall(cx, cz, teamColor)
@@ -180,6 +196,36 @@ local function buildStall(cx, cz, teamColor)
 	for i = 1, 2 do
 		local coin = part(model, Vector3.new(0.2, 0.9, 0.9), CFrame.new(p(2.6, 3.68 + (i - 1) * 0.21, 3.9)) * CFrame.Angles(0, 0, math.rad(90)), GOLD, Enum.Material.Metal)
 		coin.Shape = Enum.PartType.Cylinder
+	end
+
+	-- cartoon cash register on the counter, keypad facing the customer
+	if registerTemplate then
+		local reg = registerTemplate:Clone()
+		reg.Name = "CashRegister"
+		reg:ScaleTo(2.7)
+		reg.WorldPivot = reg:GetBoundingBox()
+		local _, ext = reg:GetBoundingBox()
+		reg:PivotTo(CFrame.new(p(2.6, 3.575 + ext.Y / 2, 1.5)) * CFrame.Angles(0, math.rad(-90 * f), 0))
+		for _, pt in reg:GetDescendants() do
+			if pt:IsA("BasePart") then
+				pt.Anchored = true
+				pt.CanCollide = false
+				if pt.Name:find("TeamColor") then
+					pt.Color = teamColor
+					pt.Material = Enum.Material.SmoothPlastic
+				elseif pt.Name:find("OlivePaint") then
+					pt.Color = Color3.fromRGB(110, 116, 78)
+					pt.Material = Enum.Material.SmoothPlastic
+				elseif pt.Name:find("DarkGunmetal") then
+					pt.Color = Color3.fromRGB(58, 60, 66)
+					pt.Material = Enum.Material.Metal
+				else
+					pt.Color = Color3.fromRGB(150, 154, 160)
+					pt.Material = Enum.Material.Metal
+				end
+			end
+		end
+		reg.Parent = model
 	end
 
 	-- warm light under the canopy plus a string of gold bulbs along the front
