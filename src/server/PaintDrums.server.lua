@@ -69,6 +69,25 @@ local function explode(drum: Model, shooter: Player?, paintColor: Color3)
 	local ground = Vector3.new(center.X, center.Y - ext.Y / 2 + 0.1, center.Z)
 	PaintSplat.spawn(ground, Vector3.yAxis, paintColor, Config.Drums.VFXScale)
 
+	-- the boom, heard across a good chunk of the arena
+	if Config.Sounds.DrumBoom ~= "" then
+		local sndPart = Instance.new("Part")
+		sndPart.Size = Vector3.new(0.2, 0.2, 0.2)
+		sndPart.Transparency = 1
+		sndPart.Anchored = true
+		sndPart.CanCollide = false
+		sndPart.CanQuery = false
+		sndPart.Position = center
+		sndPart.Parent = Workspace
+		local snd = Instance.new("Sound")
+		snd.SoundId = Config.Sounds.DrumBoom
+		snd.Volume = 1
+		snd.RollOffMaxDistance = 200
+		snd.Parent = sndPart
+		snd:Play()
+		game:GetService("Debris"):AddItem(sndPart, 4)
+	end
+
 	setHidden(drum, true)
 	task.delay(Config.Drums.RespawnSeconds, function()
 		if drum.Parent then

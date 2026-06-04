@@ -121,7 +121,12 @@ local function addRow(i: number, data: any, isMvp: boolean)
 	rc.Parent = row
 
 	local nameText = (isMvp and "★ " or "") .. tostring(data.name)
-	cell(row, COLS.name, COLW.name, nameText, Color3.fromRGB(245, 245, 245), true, Enum.TextXAlignment.Left)
+	if data.award then
+		-- award chip in gold after the name (rich text keeps it one label)
+		nameText = nameText .. '  <font color="#FFC43C" size="14">' .. tostring(data.award) .. "</font>"
+	end
+	local nameCell = cell(row, COLS.name, COLW.name, nameText, Color3.fromRGB(245, 245, 245), true, Enum.TextXAlignment.Left)
+	nameCell.RichText = true
 	cell(row, COLS.tags, COLW.tags, tostring(data.tags), Color3.fromRGB(245, 245, 245), false, Enum.TextXAlignment.Center)
 	cell(row, COLS.out, COLW.out, tostring(data.taggedOut), Color3.fromRGB(220, 220, 220), false, Enum.TextXAlignment.Center)
 	cell(row, COLS.tower, COLW.tower, tostring(data.towerHits), Color3.fromRGB(220, 220, 220), false, Enum.TextXAlignment.Center)

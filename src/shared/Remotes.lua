@@ -56,6 +56,7 @@ Remotes.CoinsChanged = remote("CoinsChanged", "RemoteEvent")
 Remotes.OpenShop = remote("OpenShop", "RemoteEvent") -- server tells a client to open the shop
 Remotes.DogShot = remote("DogShot", "RemoteEvent") -- you splatted a hidden dog portrait, coins gone
 Remotes.PowerUpEvent = remote("PowerUpEvent", "RemoteEvent") -- mid power-up spawned / claimed announcements
+Remotes.StreakEvent = remote("StreakEvent", "RemoteEvent") -- tag streak banners (name, label, count)
 
 -- Match flow
 Remotes.MatchStarting = remote("MatchStarting", "RemoteEvent")

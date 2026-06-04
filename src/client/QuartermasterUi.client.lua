@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
+local Sfx = require(Shared:WaitForChild("Sfx"))
 
 local function serverMode(): string
 	while not ReplicatedStorage:GetAttribute("ServerMode") do
@@ -454,6 +455,9 @@ local function buy(item: ShopItem)
 		return Remotes.PurchaseItem:InvokeServer(item.name)
 	end)
 	status.Text = (ok and res and res.message) or "Could not buy that."
+	if ok and res and res.ok then
+		Sfx.play("Purchase", 0.6)
+	end
 	busy = false
 	refresh()
 end

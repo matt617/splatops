@@ -73,6 +73,37 @@ function Stats.teamTowerDamage(): { Red: number, Blue: number }
 	return totals
 end
 
+-- end-of-match superlatives. Only handed out when players actually differ on the stat,
+-- so a quiet round does not stamp everyone with everything.
+local AWARDS = {
+	{ key = "tags", label = "SHARPSHOOTER", best = "max" },
+	{ key = "towerHits", label = "TOWER BUSTER", best = "max" },
+	{ key = "taggedOut", label = "UNTOUCHABLE", best = "min" },
+	{ key = "taggedOut", label = "PAINT MAGNET", best = "max" },
+}
+
+local function stampAwards(rows: { any })
+	if #rows < 2 then
+		return
+	end
+	for _, award in AWARDS do
+		local best = nil
+		local min, max = math.huge, -math.huge
+		for _, r in rows do
+			local v = r[award.key]
+			min = math.min(min, v)
+			max = math.max(max, v)
+			if best == nil or (award.best == "max" and v > best[award.key]) or (award.best == "min" and v < best[award.key]) then
+				best = r
+			end
+		end
+		-- no spread on the stat means no award this round
+		if best and min < max then
+			best.award = (best.award and best.award .. " · " or "") .. award.label
+		end
+	end
+end
+
 -- one row per current player, with coins derived from the economy rates
 function Stats.snapshot(): { any }
 	local rows = {}
@@ -86,8 +117,10 @@ function Stats.snapshot(): { any }
 			taggedOut = r.taggedOut,
 			towerHits = r.towerHits,
 			coins = coins,
+			award = nil,
 		})
 	end
+	stampAwards(rows)
 	return rows
 end
 

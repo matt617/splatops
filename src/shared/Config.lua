@@ -94,6 +94,10 @@ Config.Economy = {
 	CoinsPerTowerHit = 5,
 	StartingCoins = 0,
 	CoinsResetEachMatch = true,
+	-- comeback help: the team that is well behind on tower damage earns more per tag,
+	-- so matches stay close without touching the shooting itself
+	ComebackMultiplier = 1.5,
+	ComebackThresholdHits = 15, -- tower-hit deficit before the bonus kicks in
 }
 
 -- ============================================================================
@@ -238,6 +242,26 @@ Config.Utility = {
 		RevealDurationSeconds = 10,
 		Cooldown = "ONCE_PER_LIFE",
 	},
+}
+
+-- ============================================================================
+-- SOUNDS
+-- ============================================================================
+-- Engine-shipped sounds (rbxasset paths verified to load). Swap any for an
+-- uploaded rbxassetid to upgrade it. Empty string disables that sound.
+
+Config.Sounds = {
+	Splat = "rbxasset://sounds/splat.wav", -- every paint impact, spatial
+	DrumBoom = "rbxasset://sounds/impact_water.mp3", -- paint drum burst
+	HitTaken = "rbxasset://sounds/snap.mp3", -- you took a hit
+	TaggedOut = "rbxasset://sounds/uuhhh.mp3", -- the classic, on tag-out
+	MatchStart = "rbxasset://sounds/electronicpingshort.wav",
+	Victory = "rbxasset://sounds/victory.wav", -- end-of-match fanfare
+	PowerUpSpawn = "rbxasset://sounds/electronicpingshort.wav",
+	PowerUpClaim = "rbxasset://sounds/short spring sound.wav",
+	Streak = "rbxasset://sounds/flashbulb.wav", -- streak banner sting
+	DogShot = "rbxasset://sounds/glassbreak.wav", -- you splatted Luna
+	Purchase = "rbxasset://sounds/button.wav", -- shop buy
 }
 
 -- ============================================================================

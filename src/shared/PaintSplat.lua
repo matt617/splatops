@@ -145,6 +145,26 @@ function PaintSplat.spawn(position: Vector3, normal: Vector3, color: Color3, sca
 	end
 
 	spawnBurst(position, normal, color, mult)
+
+	-- spatial splat sound at the impact; bigger blasts play louder and lower
+	if Config.Sounds.Splat ~= "" then
+		local sndPart = Instance.new("Part")
+		sndPart.Size = Vector3.new(0.2, 0.2, 0.2)
+		sndPart.Transparency = 1
+		sndPart.Anchored = true
+		sndPart.CanCollide = false
+		sndPart.CanQuery = false
+		sndPart.Position = position
+		local snd = Instance.new("Sound")
+		snd.SoundId = Config.Sounds.Splat
+		snd.Volume = math.min(0.4 * mult, 1)
+		snd.PlaybackSpeed = (0.9 + math.random() * 0.3) / math.sqrt(mult)
+		snd.RollOffMaxDistance = 80
+		snd.Parent = sndPart
+		sndPart.Parent = getContainer()
+		snd:Play()
+		Debris:AddItem(sndPart, 2)
+	end
 end
 
 return PaintSplat

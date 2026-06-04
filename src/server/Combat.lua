@@ -231,7 +231,14 @@ function Combat.applyHit(
 	humanoid:SetAttribute("Hits", hits)
 	if hits >= MAX_HITS then
 		if shooterPlayer then
-			Economy.award(shooterPlayer, Config.Economy.CoinsPerTag)
+			-- comeback help: FlavorService keeps LosingTeam current; that team earns extra
+			local coins = Config.Economy.CoinsPerTag
+			local losing = ReplicatedStorage:GetAttribute("LosingTeam")
+			local losingTeam = type(losing) == "string" and (Config.Teams :: any)[losing]
+			if losingTeam and shooterPlayer.Team and shooterPlayer.Team.Name == losingTeam.Name then
+				coins = math.floor(coins * Config.Economy.ComebackMultiplier)
+			end
+			Economy.award(shooterPlayer, coins)
 		end
 		Combat.Tagged:Fire(shooterPlayer, targetCharacter, victimPlayer)
 		Combat.tagOut(targetCharacter, victimPlayer)

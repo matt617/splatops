@@ -56,3 +56,8 @@ Remotes.PowerUpEvent.OnClientEvent:Connect(function(kind: string, who: string, d
 		end
 	end
 end)
+
+-- tag streak banners share the same spot
+Remotes.StreakEvent.OnClientEvent:Connect(function(name: string, label: string, _count: number)
+	flash(string.upper(name) .. " " .. label)
+end)
