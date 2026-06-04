@@ -52,13 +52,18 @@ local function clearLoadout(player: Player)
 	purge(player.Character)
 end
 
--- split players evenly across the two squads
+-- split players evenly across the two squads, shuffled so the teams remix every round
 local function assignTeams()
 	local red, blue = squad("Red Squad"), squad("Blue Squad")
 	if not red or not blue then
 		return
 	end
-	for i, player in ipairs(Players:GetPlayers()) do
+	local pool = Players:GetPlayers()
+	for i = #pool, 2, -1 do
+		local j = math.random(i)
+		pool[i], pool[j] = pool[j], pool[i]
+	end
+	for i, player in ipairs(pool) do
 		player.Neutral = false
 		player.Team = (i % 2 == 1) and red or blue
 	end
@@ -97,6 +102,25 @@ function Match.rematch()
 		return
 	end
 	beginRound()
+end
+
+-- A player who joins while a match is running: put them on the smaller team and spawn
+-- them at that base. Without this they would stay neutral with the lobby spawn disabled
+-- and drop at the world origin.
+function Match.addLatecomer(player: Player)
+	if Match.state ~= "Match" then
+		return
+	end
+	local red, blue = squad("Red Squad"), squad("Blue Squad")
+	if not red or not blue then
+		return
+	end
+	player.Neutral = false
+	player.Team = if #red:GetPlayers() <= #blue:GetPlayers() then red else blue
+	Economy.reset(player)
+	clearLoadout(player)
+	player:LoadCharacter()
+	Remotes.MatchStarting:FireClient(player, true)
 end
 
 function Match.returnToLobby()

@@ -49,6 +49,7 @@ folder.Parent = Workspace
 local function part(parent, size, cf, color, material, collide)
 	local pt = Instance.new("Part")
 	pt.Anchored = true
+	pt.CastShadow = false
 	pt.CanCollide = collide == true
 	pt.Size = size
 	pt.CFrame = cf
@@ -209,6 +210,7 @@ local function buildStall(cx, cz, teamColor)
 		for _, pt in reg:GetDescendants() do
 			if pt:IsA("BasePart") then
 				pt.Anchored = true
+				pt.CastShadow = false
 				pt.CanCollide = false
 				if pt.Name:find("TeamColor") then
 					pt.Color = teamColor

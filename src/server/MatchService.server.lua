@@ -33,7 +33,39 @@ end
 for _, p in Players:GetPlayers() do
 	captureCode(p)
 end
-Players.PlayerAdded:Connect(captureCode)
+Players.PlayerAdded:Connect(function(player)
+	captureCode(player)
+	-- joined while a round is running: drop them straight onto the smaller team
+	if Match.state == "Match" then
+		task.delay(1, function() -- give their client a moment to finish loading
+			if player.Parent and Match.state == "Match" then
+				Match.addLatecomer(player)
+			end
+		end)
+	end
+end)
+
+-- if a whole team empties out mid-round, hand the round to the team still standing
+Players.PlayerRemoving:Connect(function()
+	task.defer(function()
+		if Match.state ~= "Match" or Tower.isMatchOver() then
+			return
+		end
+		local Teams = game:GetService("Teams")
+		local red = Teams:FindFirstChild("Red Squad")
+		local blue = Teams:FindFirstChild("Blue Squad")
+		if not (red and blue) then
+			return
+		end
+		local redCount = #(red :: Team):GetPlayers()
+		local blueCount = #(blue :: Team):GetPlayers()
+		if redCount == 0 and blueCount > 0 then
+			Tower.forceEnd("Blue Squad")
+		elseif blueCount == 0 and redCount > 0 then
+			Tower.forceEnd("Red Squad")
+		end
+	end)
+end)
 
 -- The match clock. Each round bumps the generation so a stale clock from the previous round
 -- stops ticking. When it runs out with no tower down, the team that dealt the most tower

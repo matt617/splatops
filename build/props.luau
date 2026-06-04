@@ -197,6 +197,7 @@ if cover then
 							local box = Instance.new("Part")
 							box.Name = "CrateBody"
 							box.Anchored = true
+							box.CastShadow = false
 							box.CanCollide = pt.CanCollide
 							box.CanQuery = pt.CanQuery
 							box.Size = pt.Size
