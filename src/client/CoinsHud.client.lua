@@ -33,7 +33,13 @@ pad.PaddingLeft = UDim.new(0, 10)
 pad.PaddingRight = UDim.new(0, 10)
 pad.Parent = label
 
+local GOLD = Color3.fromRGB(255, 215, 80)
+local flashing = false
+
 local function show(n: number)
+	if flashing then
+		return
+	end
 	label.Text = "COINS  " .. tostring(n)
 end
 
@@ -42,3 +48,15 @@ player:GetAttributeChangedSignal("Coins"):Connect(function()
 	show(player:GetAttribute("Coins") :: number? or 0)
 end)
 Remotes.CoinsChanged.OnClientEvent:Connect(show)
+
+-- the dog portrait easter egg: shooting it wipes your coins, and we tell you why
+Remotes.DogShot.OnClientEvent:Connect(function()
+	flashing = true
+	label.TextColor3 = Color3.fromRGB(255, 90, 90)
+	label.Text = "Don't Splat Luna!"
+	task.delay(3, function()
+		flashing = false
+		label.TextColor3 = GOLD
+		show(player:GetAttribute("Coins") :: number? or 0)
+	end)
+end)

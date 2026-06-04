@@ -54,6 +54,7 @@ Remotes.PracticeProgress = remote("PracticeProgress", "RemoteEvent")
 Remotes.PurchaseItem = remote("PurchaseItem", "RemoteFunction")
 Remotes.CoinsChanged = remote("CoinsChanged", "RemoteEvent")
 Remotes.OpenShop = remote("OpenShop", "RemoteEvent") -- server tells a client to open the shop
+Remotes.DogShot = remote("DogShot", "RemoteEvent") -- you splatted a hidden dog portrait, coins gone
 
 -- Match flow
 Remotes.MatchStarting = remote("MatchStarting", "RemoteEvent")

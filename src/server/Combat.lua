@@ -325,10 +325,16 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 			if hitModel and hitModel:FindFirstChildOfClass("Humanoid") then
 				Combat.applyHit(hitModel, result.Position, result.Normal, paintColor, shooterPlayer, damage)
 			else
-				PaintSplat.spawn(result.Position, result.Normal, paintColor)
+				-- splash weapons (mortar) paint a much bigger blast than a normal hit
+				PaintSplat.spawn(result.Position, result.Normal, paintColor, weapon.SplashVFXScale)
 				-- lobby practice targets: no health, just a splat plus a counter ping
 				if CollectionService:HasTag(result.Instance, "PracticeTarget") then
 					Combat.PracticeTargetHit:Fire(shooterPlayer, result.Instance, result.Position)
+				end
+				-- easter egg: splatting a hidden dog portrait costs you every coin you have
+				if shooterPlayer and CollectionService:HasTag(result.Instance, "DogPortrait") then
+					Economy.set(shooterPlayer, 0)
+					Remotes.DogShot:FireClient(shooterPlayer)
 				end
 			end
 		end

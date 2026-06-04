@@ -266,6 +266,7 @@ end
 do
 	block("DogPortraitFrame", Vector3.new(12, 3, 243.0), Vector3.new(4.4, 4.4, 0.2), Color3.fromRGB(28, 28, 32), Enum.Material.SmoothPlastic)
 	local photo = block("DogPortrait", Vector3.new(12, 3, 243.2), Vector3.new(4, 4, 0.15), Color3.fromRGB(18, 18, 22), Enum.Material.SmoothPlastic)
+	game:GetService("CollectionService"):AddTag(photo, "DogPortrait") -- shooting it wipes your coins
 	local d = Instance.new("Decal")
 	d.Texture = "rbxassetid://134540405441809"
 	d.Face = Enum.NormalId.Back -- Back (+Z) faces into the room

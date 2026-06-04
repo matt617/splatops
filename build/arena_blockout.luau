@@ -164,6 +164,7 @@ watchtower(-50, 0, -1)
 do
 	block(fCover, "DogPortraitFrame", Vector3.new(50, 8.95, 0), Vector3.new(4.4, 0.2, 4.4), Color3.fromRGB(28, 28, 32), Enum.Material.SmoothPlastic)
 	local photo = block(fCover, "DogPortrait", Vector3.new(50, 8.83, 0), Vector3.new(4, 0.15, 4), Color3.fromRGB(18, 18, 22), Enum.Material.SmoothPlastic)
+	game:GetService("CollectionService"):AddTag(photo, "DogPortrait") -- shooting it wipes your coins
 	local d = Instance.new("Decal")
 	d.Texture = "rbxassetid://88147646373265"
 	d.Face = Enum.NormalId.Bottom -- faces down, seen by looking up from under the deck
@@ -174,6 +175,7 @@ end
 do
 	block(fCover, "DogPortraitFrame2", Vector3.new(-50, 8.95, 0), Vector3.new(4.4, 0.2, 4.4), Color3.fromRGB(28, 28, 32), Enum.Material.SmoothPlastic)
 	local photo = block(fCover, "DogPortrait2", Vector3.new(-50, 8.83, 0), Vector3.new(4, 0.15, 4), Color3.fromRGB(18, 18, 22), Enum.Material.SmoothPlastic)
+	game:GetService("CollectionService"):AddTag(photo, "DogPortrait") -- shooting it wipes your coins
 	local d = Instance.new("Decal")
 	d.Texture = "rbxassetid://89437952628120"
 	d.Face = Enum.NormalId.Bottom
