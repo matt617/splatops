@@ -50,6 +50,18 @@ local function clearLoadout(player: Player)
 	end
 	purge(player:FindFirstChildOfClass("Backpack"))
 	purge(player.Character)
+	-- gadget state ends with the round too (shield, double jump, boosts, drone)
+	for _, attr in { "SpeedBoostLife", "DoubleJump", "ShieldHits", "ShieldExpiry", "DroneUsedLife" } do
+		player:SetAttribute(attr, nil)
+	end
+end
+
+-- placed walls and turrets do not survive a round transition
+local function clearDeployables()
+	local folder = Workspace:FindFirstChild("Deployables")
+	if folder then
+		folder:ClearAllChildren()
+	end
 end
 
 -- split players evenly across the two squads, shuffled so the teams remix every round
@@ -72,6 +84,7 @@ end
 -- Set up a fresh round: reset towers, split teams, reset coins and stats, and spawn everyone
 -- into the arena. Shared by the first start and the auto-rematch.
 local function beginRound()
+	clearDeployables()
 	Tower.registerAll() -- reset tower health and clear the match-over flag
 	setLobbySpawnEnabled(false) -- so team players spawn at their base, not back in the lobby
 	assignTeams()
@@ -125,6 +138,7 @@ end
 
 function Match.returnToLobby()
 	Match.state = "Lobby"
+	clearDeployables()
 	Tower.registerAll() -- clear match-over so lobby practice fire works again
 	setLobbySpawnEnabled(true) -- neutral players spawn back in the practice range
 	for _, player in Players:GetPlayers() do

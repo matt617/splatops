@@ -52,6 +52,8 @@ Remotes.PracticeProgress = remote("PracticeProgress", "RemoteEvent")
 
 -- Economy / Quartermaster
 Remotes.PurchaseItem = remote("PurchaseItem", "RemoteFunction")
+Remotes.PlaceDeployable = remote("PlaceDeployable", "RemoteEvent") -- placement tool asks to drop a wall/turret
+Remotes.ScoutDrone = remote("ScoutDrone", "RemoteEvent") -- server tells the buyer to highlight enemies
 Remotes.CoinsChanged = remote("CoinsChanged", "RemoteEvent")
 Remotes.OpenShop = remote("OpenShop", "RemoteEvent") -- server tells a client to open the shop
 Remotes.DogShot = remote("DogShot", "RemoteEvent") -- you splatted a hidden dog portrait, coins gone

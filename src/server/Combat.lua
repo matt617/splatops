@@ -222,6 +222,30 @@ function Combat.applyHit(
 	end
 
 	PaintSplat.spawn(hitPosition, hitNormal, paintColor)
+
+	-- personal shield gadget: eat the hit instead of taking damage, with a blue pop
+	if victimPlayer then
+		local shieldHits = (victimPlayer:GetAttribute("ShieldHits") :: number?) or 0
+		local shieldExpiry = (victimPlayer:GetAttribute("ShieldExpiry") :: number?) or 0
+		if shieldHits > 0 and shieldExpiry > os.clock() then
+			victimPlayer:SetAttribute("ShieldHits", shieldHits - 1)
+			local pop = Instance.new("Part")
+			pop.Shape = Enum.PartType.Ball
+			pop.Size = Vector3.new(7, 7, 7)
+			pop.Anchored = true
+			pop.CanCollide = false
+			pop.CanQuery = false
+			pop.CastShadow = false
+			pop.Color = Color3.fromRGB(110, 190, 255)
+			pop.Material = Enum.Material.ForceField
+			local root = targetCharacter:FindFirstChild("HumanoidRootPart")
+			pop.Position = if root and root:IsA("BasePart") then root.Position else hitPosition
+			pop.Parent = Workspace
+			game:GetService("Debris"):AddItem(pop, 0.3)
+			return true
+		end
+	end
+
 	if victimPlayer then
 		Remotes.PaintHitVFX:FireClient(victimPlayer, paintColor)
 	end
@@ -360,6 +384,27 @@ function Combat.handleFire(shooterPlayer: Player?, origin: Vector3, direction: V
 				-- exploding paint drums: the drum service runs the burst
 				if CollectionService:HasTag(result.Instance, "PaintDrum") then
 					Combat.DrumHit:Fire(shooterPlayer, result.Instance, result.Position)
+				end
+				-- deployable gadgets (walls, turrets) soak paint until they pop. Your own
+				-- team's deployables just get painted, never damaged.
+				local dep: Instance? = result.Instance
+				while dep and dep ~= Workspace do
+					if dep:GetAttribute("DeployableHealth") then
+						break
+					end
+					dep = dep.Parent
+				end
+				if dep and dep ~= Workspace and dep:GetAttribute("DeployableHealth") then
+					local depTeam = dep:GetAttribute("DeployableTeam")
+					local shooterTeam = shooterPlayer and shooterPlayer.Team and shooterPlayer.Team.Name
+					if depTeam ~= shooterTeam then
+						local hp = (dep:GetAttribute("DeployableHealth") :: number) - damage
+						dep:SetAttribute("DeployableHealth", hp)
+						if hp <= 0 then
+							PaintSplat.spawn(result.Position, result.Normal, paintColor, 2)
+							dep:Destroy()
+						end
+					end
 				end
 			end
 		end

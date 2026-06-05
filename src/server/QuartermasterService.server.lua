@@ -16,6 +16,7 @@ end
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Economy = require(ServerScriptService:WaitForChild("Economy"))
+local Gadgets = require(ServerScriptService:WaitForChild("Gadgets"))
 
 local templates = ReplicatedStorage:WaitForChild("WeaponTemplates")
 
@@ -28,7 +29,14 @@ local function ownsWeapon(player: Player, name: string): boolean
 end
 
 Remotes.PurchaseItem.OnServerInvoke = function(player, itemName)
-	local weapon = type(itemName) == "string" and Config.Weapons[itemName] or nil
+	if type(itemName) ~= "string" then
+		return { ok = false, message = "That is not for sale." }
+	end
+	-- gadgets (defenses and utility) take their own path
+	if (Config.Defenses :: any)[itemName] or (Config.Utility :: any)[itemName] then
+		return Gadgets.purchase(player, itemName)
+	end
+	local weapon = Config.Weapons[itemName]
 	if not weapon or (weapon.Price or 0) <= 0 then
 		return { ok = false, message = "That is not for sale." }
 	end
@@ -47,6 +55,14 @@ Remotes.PurchaseItem.OnServerInvoke = function(player, itemName)
 	end
 	return { ok = true, message = "Bought the " .. weapon.DisplayName .. "!" }
 end
+
+-- placement tools (wall, turret) ask to drop their deployable here
+Remotes.PlaceDeployable.OnServerEvent:Connect(function(player, name, position)
+	if type(name) ~= "string" or typeof(position) ~= "Vector3" then
+		return
+	end
+	Gadgets.place(player, name, position)
+end)
 
 -- a "Quartermaster" prompt on each base kiosk
 local function hookKiosk(qm: Instance?)
