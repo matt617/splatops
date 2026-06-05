@@ -10,7 +10,8 @@ local Workspace = game:GetService("Workspace")
 local IDS = {
 	sign = "rbxassetid://90741391919626", -- wide QUARTERMASTER banner
 	coin = "rbxassetid://116190464693527", -- square coin emblem (counter front)
-	pricelist = "rbxassetid://98928429394165", -- portrait price list board
+	pricelist = "rbxassetid://98928429394165", -- portrait price list board (weapons)
+	gearlist = "rbxassetid://80917917546247", -- portrait gear list board (gadgets)
 }
 -- shop card art, cheapest first, same ids as Config.Weapons CardImage
 local CARDS = {
@@ -181,9 +182,15 @@ local function buildStall(cx, cz, teamColor)
 		signText(board, "PRICE LIST")
 	end
 
-	-- crate stack on the other side
+	-- crate stack on the other side, with the gear list board leaning against it
 	part(model, Vector3.new(2.5, 2.5, 2.5), facing(p(2.2, 1.25, -8.6)), CRATE, Enum.Material.WoodPlanks, true)
 	part(model, Vector3.new(1.7, 1.7, 1.7), facing(p(2.2, 3.35, -8.6)) * CFrame.Angles(0, math.rad(20), 0), CRATE, Enum.Material.WoodPlanks, true)
+	local gearBoard = part(model, Vector3.new(3.4, 4.6, 0.3), facing(p(3.6, 2.4, -8.6)) * CFrame.Angles(math.rad(-12), 0, 0), DARK)
+	if IDS.gearlist ~= "" then
+		decal(gearBoard, IDS.gearlist)
+	else
+		signText(gearBoard, "GEAR LIST")
+	end
 
 	-- paint jars on the counter (glass cylinders) plus a little stack of coins
 	local jarColors = { Color3.fromRGB(220, 60, 60), Color3.fromRGB(255, 196, 60), Color3.fromRGB(60, 110, 220) }

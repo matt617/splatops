@@ -15,25 +15,30 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 -- set the comms towers to full health for the round
 Tower.registerAll()
 
--- stamp each weapon Tool with its icon so hotbar slots show a picture, not the raw
--- tool name. IconImage is the square slot icon; the shop card art is the fallback.
+-- stamp each Tool (weapons AND gadget placement tools) with its icon so hotbar slots
+-- show a picture, not the raw tool name. IconImage is the square slot icon; the shop
+-- card art is the fallback.
+local function itemConfig(name: string): any
+	return (Config.Weapons :: any)[name] or (Config.Defenses :: any)[name] or (Config.Utility :: any)[name]
+end
 local function applyToolIcons(container: Instance?)
 	if not container then
 		return
 	end
 	for _, tool in container:GetChildren() do
 		if tool:IsA("Tool") then
-			local weapon = (Config.Weapons :: any)[tool.Name]
-			local icon = weapon and (weapon.IconImage or weapon.CardImage)
+			local item = itemConfig(tool.Name)
+			local icon = item and (item.IconImage or item.CardImage)
 			if icon then
 				tool.TextureId = icon
-				tool.ToolTip = weapon.DisplayName or tool.Name
+				tool.ToolTip = item.DisplayName or tool.Name
 			end
 		end
 	end
 end
 applyToolIcons(game:GetService("StarterPack"))
 applyToolIcons(ReplicatedStorage:FindFirstChild("WeaponTemplates"))
+applyToolIcons(ReplicatedStorage:FindFirstChild("GadgetTemplates"))
 
 Players.PlayerAdded:Connect(function(player)
 	player:SetAttribute("Coins", Config.Economy.StartingCoins)
