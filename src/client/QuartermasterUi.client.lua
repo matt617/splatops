@@ -47,11 +47,17 @@ local C_LOCKED = Color3.fromRGB(70, 74, 84)
 type ShopItem = {
 	name: string,
 	weapon: any,
+	kind: string, -- "weapon" or "gadget"
 }
 
 local items: { ShopItem } = {}
 for name, weapon in Config.Weapons do
-	table.insert(items, { name = name, weapon = weapon :: any })
+	table.insert(items, { name = name, weapon = weapon :: any, kind = "weapon" })
+end
+for _, group in { Config.Defenses :: any, Config.Utility :: any } do
+	for name, gadget in group do
+		table.insert(items, { name = name, weapon = gadget, kind = "gadget" })
+	end
 end
 table.sort(items, function(a, b)
 	return (a.weapon.Price or 0) < (b.weapon.Price or 0)
@@ -71,9 +77,50 @@ end
 -- per-stat maximum across the lineup, so bars compare weapons fairly
 local statMax: { [string]: number } = {}
 for _, item in items do
-	for key, value in statValues(item.weapon) do
-		statMax[key] = math.max(statMax[key] or 0, value)
+	if item.kind == "weapon" then
+		for key, value in statValues(item.weapon) do
+			statMax[key] = math.max(statMax[key] or 0, value)
+		end
 	end
+end
+
+-- gadgets show plain fact rows instead of comparison bars
+local function gadgetRows(g: any): { { label: string, caption: string } }
+	local rows = {}
+	if g.Health then
+		table.insert(rows, { label = "HEALTH", caption = g.Health .. " paint" })
+	end
+	if g.DamagePerSecond then
+		table.insert(rows, { label = "DAMAGE", caption = g.DamagePerSecond .. "/sec" })
+	end
+	if g.RangeStuds then
+		table.insert(rows, { label = "RANGE", caption = g.RangeStuds .. " studs" })
+	end
+	if g.BlocksHits then
+		table.insert(rows, { label = "BLOCKS", caption = g.BlocksHits .. " hit" })
+	end
+	if g.WalkSpeedMultiplier then
+		table.insert(rows, { label = "SPEED", caption = "+" .. math.floor((g.WalkSpeedMultiplier - 1) * 100 + 0.5) .. "%" })
+	end
+	if g.RevealDurationSeconds then
+		table.insert(rows, { label = "REVEAL", caption = g.RevealDurationSeconds .. "s" })
+	end
+	if g.LifetimeSeconds then
+		table.insert(rows, { label = "LASTS", caption = g.LifetimeSeconds .. "s" })
+	elseif g.DurationSeconds then
+		table.insert(rows, { label = "LASTS", caption = g.DurationSeconds .. "s" })
+	elseif g.DurationLives then
+		table.insert(rows, { label = "LASTS", caption = "one life" })
+	elseif g.Persists == "MATCH" then
+		table.insert(rows, { label = "LASTS", caption = "whole match" })
+	end
+	if g.Cooldown == "ONCE_PER_LIFE" then
+		table.insert(rows, { label = "USES", caption = "1 per life" })
+	end
+	if g.PlacementZone == "OWN_BASE_ONLY" then
+		table.insert(rows, { label = "WHERE", caption = "your base only" })
+	end
+	return rows
 end
 
 local SEGMENTS = 5
@@ -294,17 +341,19 @@ descLabel.TextScaled = true
 descLabel.TextXAlignment = Enum.TextXAlignment.Left
 descLabel.Parent = detail
 
--- stat rows: label, segmented bar, caption
-local statBars: { [string]: { segments: { Frame }, caption: TextLabel } } = {}
+-- five generic stat rows: label, segmented bar, caption. Weapons use all three;
+-- gadgets hide the bars and use wider captions.
+type StatRow = { label: TextLabel, segments: { Frame }, caption: TextLabel }
+local statRows: { StatRow } = {}
 local statsTop = 204
-for i, row in ipairs(STAT_ROWS) do
+for i = 1, #STAT_ROWS do
 	local y = statsTop + (i - 1) * 26
 
 	local label = Instance.new("TextLabel")
 	label.Position = UDim2.fromOffset(18, y)
 	label.Size = UDim2.fromOffset(86, 20)
 	label.BackgroundTransparency = 1
-	label.Text = row.label
+	label.Text = ""
 	label.TextColor3 = C_TEXT_DIM
 	label.Font = Enum.Font.GothamBold
 	label.TextScaled = true
@@ -335,7 +384,7 @@ for i, row in ipairs(STAT_ROWS) do
 	caption.TextXAlignment = Enum.TextXAlignment.Right
 	caption.Parent = detail
 
-	statBars[row.key] = { segments = segments, caption = caption }
+	statRows[i] = { label = label, segments = segments, caption = caption }
 end
 
 local buyBtn = Instance.new("TextButton")
@@ -375,13 +424,38 @@ local selectedName: string? = nil
 local listRows: { [string]: { row: TextButton, tag: TextLabel, stroke: UIStroke } } = {}
 local busy = false
 
+-- a gadget that cannot be bought right now (active, carried, or used up this life)
+local function gadgetStatus(item: ShopItem): string?
+	if item.kind ~= "gadget" then
+		return nil
+	end
+	local n = item.name
+	if n == "DoubleJump" and player:GetAttribute("DoubleJump") == true then
+		return "OWNED"
+	elseif n == "SpeedBoost" and player:GetAttribute("SpeedBoostLife") == true then
+		return "ACTIVE"
+	elseif n == "PersonalShield" and ((player:GetAttribute("ShieldHits") :: number?) or 0) > 0 then
+		return "SHIELD UP"
+	elseif n == "ScoutDrone" and player:GetAttribute("DroneUsedLife") == true then
+		return "USED THIS LIFE"
+	elseif (n == "DeployableWall" or n == "AutoTurret") and ownsWeapon(n) then
+		return "CARRYING"
+	end
+	return nil
+end
+
 local function refreshBuyButton(item: ShopItem)
 	local price = item.weapon.Price or 0
+	local blocked = gadgetStatus(item)
 	if price <= 0 then
 		buyBtn.Text = "STANDARD ISSUE"
 		buyBtn.BackgroundColor3 = C_OWNED
 		buyBtn.AutoButtonColor = false
-	elseif ownsWeapon(item.name) then
+	elseif blocked then
+		buyBtn.Text = blocked
+		buyBtn.BackgroundColor3 = C_OWNED
+		buyBtn.AutoButtonColor = false
+	elseif item.kind == "weapon" and ownsWeapon(item.name) then
 		buyBtn.Text = "OWNED"
 		buyBtn.BackgroundColor3 = C_OWNED
 		buyBtn.AutoButtonColor = false
@@ -402,7 +476,11 @@ local function refreshListRow(item: ShopItem)
 		return
 	end
 	local price = item.weapon.Price or 0
-	if price <= 0 or ownsWeapon(item.name) then
+	local blocked = gadgetStatus(item)
+	if blocked then
+		entry.tag.Text = blocked
+		entry.tag.TextColor3 = C_BUY
+	elseif price <= 0 or (item.kind == "weapon" and ownsWeapon(item.name)) then
 		entry.tag.Text = "OWNED"
 		entry.tag.TextColor3 = C_BUY
 	else
@@ -427,22 +505,46 @@ local function select(item: ShopItem)
 	selectedName = item.name
 	local w = item.weapon
 	art.Image = w.CardImage or ""
+	art.Visible = (w.CardImage or "") ~= ""
 	nameLabel.Text = string.upper(w.DisplayName or item.name)
 	descLabel.Text = w.Description or ""
-	for _, row in ipairs(STAT_ROWS) do
-		local bar = statBars[row.key]
-		local filled = pips(row.key, w)
-		for s, seg in ipairs(bar.segments) do
-			seg.BackgroundColor3 = if s <= filled then C_GOLD else C_BAR_EMPTY
+	if item.kind == "weapon" then
+		for i, def in ipairs(STAT_ROWS) do
+			local row = statRows[i]
+			row.label.Visible = true
+			row.caption.Visible = true
+			row.label.Text = def.label
+			local filled = pips(def.key, w)
+			for s, seg in ipairs(row.segments) do
+				seg.Visible = true
+				seg.BackgroundColor3 = if s <= filled then C_GOLD else C_BAR_EMPTY
+			end
+			row.caption.Text = statCaption(def.key, w)
 		end
-		bar.caption.Text = statCaption(row.key, w)
+	else
+		local facts = gadgetRows(w)
+		for i, row in ipairs(statRows) do
+			local fact = facts[i]
+			row.label.Visible = fact ~= nil
+			row.caption.Visible = fact ~= nil
+			for _, seg in ipairs(row.segments) do
+				seg.Visible = false
+			end
+			if fact then
+				row.label.Text = fact.label
+				row.caption.Text = fact.caption
+			end
+		end
 	end
 	status.Text = ""
 	refresh()
 end
 
 local function buy(item: ShopItem)
-	if busy or (item.weapon.Price or 0) <= 0 or ownsWeapon(item.name) then
+	if busy or (item.weapon.Price or 0) <= 0 or gadgetStatus(item) ~= nil then
+		return
+	end
+	if item.kind == "weapon" and ownsWeapon(item.name) then
 		return
 	end
 	if coins() < (item.weapon.Price or 0) then
@@ -529,6 +631,9 @@ end)
 
 -- keep money and owned states live while the shop is open
 player:GetAttributeChangedSignal("Coins"):Connect(refresh)
+for _, attr in { "DoubleJump", "SpeedBoostLife", "ShieldHits", "DroneUsedLife" } do
+	player:GetAttributeChangedSignal(attr):Connect(refresh)
+end
 player.ChildAdded:Connect(function(child)
 	if child:IsA("Backpack") then
 		child.ChildAdded:Connect(refresh)
